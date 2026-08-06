@@ -23,28 +23,35 @@ async function render() {
   );
 }
 
-test("server-renders the editorial ISCICPS experience", async () => {
+test("server-renders the refined editorial ISCICPS experience", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>ISCICPS &#x27;27 — Computational Intelligence for Cyber-Physical Systems<\/title>/i);
+  assert.match(html, /<title>ISCICPS &#x27;27 .* Computational Intelligence for Cyber-Physical Systems<\/title>/i);
   assert.match(html, /COMPUTATIONAL/);
   assert.match(html, /INTELLIGENCE/);
-  assert.match(html, /PHYSICAL SYSTEMS/);
-  assert.match(html, /21—22/);
+  assert.match(html, /CYBER-PHYSICAL/);
+  assert.match(html, /21.*22/);
   assert.match(html, /APRIL 2027/);
-  assert.match(html, /THE ROAD TO ISCICPS/);
-  assert.match(html, /RESEARCH UNIVERSE/);
-  assert.match(html, /EDGE INTELLIGENCE/);
-  assert.match(html, /AUTONOMOUS SYSTEMS/);
-  assert.match(html, /RESEARCH IS A/);
-  assert.match(html, /KATTAN—/);
+  assert.match(html, /ABOUT ISCICPS/);
+  assert.match(html, /THE PHYSICAL[\s\S]*WORLD IS/);
+  assert.match(html, /BECOMING[\s\S]*COMPUTATIONAL/);
+  assert.match(html, /RESEARCH[\s\S]*FIELDS/);
+  assert.match(html, /Edge Intelligence/);
+  assert.match(html, /Autonomous Systems/);
+  assert.match(html, /IMPORTANT DATES/);
+  assert.match(html, /KATTAN/);
+  assert.match(html, /SUBMIT PAPER/);
+  assert.match(html, /REGISTER/);
   assert.match(html, /href="https:\/\/cmt3\.research\.microsoft\.com\/"/);
   assert.match(html, /href="mailto:ieeescicps@gmail\.com"/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image"\/>/);
   assert.match(html, /<meta property="og:image" content="https:\/\/iscicps\.in\/og\.png"\/>/);
+  assert.doesNotMatch(html, /Where intelligence leaves/i);
+  assert.doesNotMatch(html, /Scroll to enter/i);
+  assert.doesNotMatch(html, /THE SYSTEM NEEDS YOUR QUESTION/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/);
 });
 
@@ -59,17 +66,25 @@ test("keeps motion, imagery and accessibility intentional", async () => {
 
   assert.match(experience, /className=\{`loader/);
   assert.match(experience, /ISCICPS_BOOT/);
+  assert.match(experience, /className="custom-cursor"/);
+  assert.match(experience, /data-cursor=/);
   assert.match(experience, /srm-campus-aerial\.jpg/);
+  assert.match(experience, /srm-auditorium-1920\.jpg/);
   assert.match(experience, /srm-research-day\.webp/);
   assert.match(experience, /import\("gsap"\)/);
   assert.match(experience, /import\("gsap\/ScrollTrigger"\)/);
   assert.match(experience, /prefers-reduced-motion: reduce/);
   assert.match(experience, /aria-current=\{activeSection === id/);
   assert.match(experience, /className="skip-link"/);
+  assert.match(css, /--ink: #07131f/);
+  assert.match(css, /--white: #f8fbfd/);
+  assert.match(css, /--blue: #6c78ff/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media \(max-width: 640px\)/);
+  assert.doesNotMatch(css, /#[fF][fF]4[5-9]00|#[eE][fF][4-9]4[4-9]4[4-9]/);
   assert.match(page, /SymposiumExperience/);
+  assert.match(layout, /Space_Grotesk/);
   assert.match(layout, /og\.png/);
   assert.match(packageJson, /"gsap": "\^3\.13\.0"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
