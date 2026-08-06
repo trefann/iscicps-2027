@@ -6,48 +6,72 @@ const imageSources = [
   "/images/srm-campus-aerial.jpg",
   "/images/srm-auditorium-1920.jpg",
   "/images/srm-research-day.webp",
+  "/images/tracks/edge-ai.webp",
+  "/images/tracks/autonomous-systems.webp",
+  "/images/tracks/smart-energy.webp",
+  "/images/tracks/security-resilience.webp",
+  "/images/tracks/trustworthy-ai.webp",
 ];
 
 const navItems = [
   ["home", "Home"],
   ["about", "About"],
-  ["research", "Research"],
+  ["research", "Tracks"],
   ["timeline", "Timeline"],
   ["venue", "Venue"],
+  ["register", "Contact"],
 ] as const;
 
 const researchTracks = [
   {
     number: "01",
-    title: "Edge Intelligence",
-    description: "Hardware-aware acceleration, on-device learning and low-latency decisions at the edge.",
-    keywords: ["ON-DEVICE AI", "EMBEDDED SYSTEMS", "IoT"],
-    image: "/images/srm-campus-aerial.jpg",
+    title: "Edge AI & Embedded Intelligence",
+    introduction: "This track examines how computational intelligence can operate close to the physical processes it observes. It connects hardware-aware neural acceleration with on-device learning so embedded platforms can act without depending on distant cloud infrastructure.",
+    areas: ["Hardware-aware neural acceleration", "On-device learning", "IoT and microcontrollers", "Embedded intelligence", "Low-latency decisions", "Edge computing"],
+    why: "Local inference reduces communication delay and supports responsive behavior where timing, energy and hardware limits matter. The focus is not AI in isolation, but intelligence designed for the device that must execute it.",
+    applications: ["Embedded vision", "Industrial monitoring", "Environmental sensing", "Wearable systems"],
+    image: "/images/tracks/edge-ai.webp",
     position: "center center",
   },
   {
     number: "02",
-    title: "Autonomous Systems",
-    description: "Robotics, multi-agent coordination and real-time perception, localization and mapping.",
-    keywords: ["ROBOTICS", "SLAM", "SWARM INTELLIGENCE"],
-    image: "/images/srm-auditorium-1920.jpg",
-    position: "center 70%",
+    title: "Autonomous Systems & Robotics",
+    introduction: "Autonomous physical systems must perceive their environment, locate themselves, decide under uncertainty and coordinate action in real time. This track brings those layers together across self-driving vehicles, drones, mobile robots and multi-agent systems.",
+    areas: ["Real-time perception", "Localization and SLAM", "Decision and control", "Mobile robotics", "Multi-agent coordination", "Swarm intelligence"],
+    why: "Reliable autonomy depends on the continuous connection between sensing and physical action. Research here studies how robots remain adaptive, coordinated and aware while operating beyond tightly controlled conditions.",
+    applications: ["Self-driving vehicles", "Aerial drones", "Mobile inspection", "Cooperative robot teams"],
+    image: "/images/tracks/autonomous-systems.webp",
+    position: "center center",
   },
   {
     number: "03",
-    title: "Cyber Security",
-    description: "Threat detection, zero-trust IoT, physical-layer security and fault-tolerant control.",
-    keywords: ["ZERO TRUST", "RESILIENCE", "PRIVACY"],
-    image: "/images/srm-research-day.webp",
+    title: "Smart Energy & Industrial Infrastructure",
+    introduction: "This track focuses on computational intelligence within energy and industrial systems. Intelligent control, predictive maintenance and resource optimization connect sensing and automation to the operation of smart grids, microgrids and manufacturing environments.",
+    areas: ["Smart-grid control", "Microgrids", "Predictive maintenance", "Industry 4.0", "Resource optimization", "Industrial automation"],
+    why: "Infrastructure becomes more efficient when it can anticipate demand, identify degradation and adjust operations before failure. The research links energy intelligence with the realities of large physical assets and industrial processes.",
+    applications: ["Energy management", "Manufacturing systems", "Equipment health", "Demand-aware control"],
+    image: "/images/tracks/smart-energy.webp",
     position: "center center",
   },
   {
     number: "04",
-    title: "Smart Infrastructure",
-    description: "Intelligent control for energy systems, predictive maintenance and resource optimization.",
-    keywords: ["SMART ENERGY", "INDUSTRY 4.0", "OPTIMIZATION"],
-    image: "/images/srm-campus-aerial.jpg",
-    position: "center 62%",
+    title: "Security, Privacy & Resilience in CPS",
+    introduction: "Cyber-physical security protects systems in which a digital compromise can produce a physical consequence. The track spans threat detection, zero-trust IoT, physical-layer security and adversarial defense alongside fault-tolerant control.",
+    areas: ["Threat detection", "Zero-trust architectures", "IoT security", "Physical-layer security", "Fault-tolerant control", "Adversarial defense", "Safety-critical AI"],
+    why: "Security cannot be separated from control, safety or continuity of operation. Resilient CPS must detect hostile or faulty conditions while preserving safe physical behavior under stress.",
+    applications: ["Industrial control", "Connected infrastructure", "Safety-critical autonomy", "Secure sensing"],
+    image: "/images/tracks/security-resilience.webp",
+    position: "center center",
+  },
+  {
+    number: "05",
+    title: "Trustworthy & Explainable AI for Physical Systems",
+    introduction: "This track studies how learning-enabled physical systems can remain understandable, verifiable and constrained by safety requirements. It connects explainable AI and human oversight with machine learning that acts inside autonomous infrastructure.",
+    areas: ["Verifiable machine learning", "Safety-constrained ML", "Explainable AI", "Human-in-the-loop control", "Ethical considerations", "Autonomous infrastructure"],
+    why: "When intelligent systems influence the physical world, performance alone is not enough. Designers and operators also need evidence, transparency and meaningful ways to supervise consequential decisions.",
+    applications: ["Assisted control", "Explainable autonomy", "Safety assurance", "Operator decision support"],
+    image: "/images/tracks/trustworthy-ai.webp",
+    position: "center center",
   },
 ];
 
@@ -189,14 +213,21 @@ export function SymposiumExperience() {
   const [activeTrack, setActiveTrack] = useState(0);
   const [activeMilestone, setActiveMilestone] = useState(0);
   const rootRef = useRef<HTMLElement>(null);
-  const indicatorRef = useRef<HTMLSpanElement>(null);
+  const menuLayerRef = useRef<HTMLDivElement>(null);
   const completeLoading = useCallback(() => setLoaded(true), []);
-  const navSection = navItems.some(([id]) => id === activeSection) ? activeSection : "venue";
+  const navSection = navItems.some(([id]) => id === activeSection) ? activeSection : "home";
   const navSectionIndex = navItems.findIndex(([id]) => id === navSection);
 
   useEffect(() => {
     document.body.classList.toggle("menu-is-open", menuOpen);
-    return () => document.body.classList.remove("menu-is-open");
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.classList.remove("menu-is-open");
+      window.removeEventListener("keydown", closeOnEscape);
+    };
   }, [menuOpen]);
 
   useEffect(() => {
@@ -244,25 +275,35 @@ export function SymposiumExperience() {
   }, [loaded]);
 
   useEffect(() => {
-    if (!loaded || !indicatorRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const layer = menuLayerRef.current;
+    if (!loaded || !layer) return;
     let cancelled = false;
-    let tween: { kill: () => void } | undefined;
+    let timeline: { kill: () => void } | undefined;
     import("gsap").then(({ gsap }) => {
       if (cancelled) return;
-      const target = document.querySelector<HTMLElement>(`.side-nav a[href="#${navSection}"]`);
-      if (!target || !indicatorRef.current) return;
-      tween = gsap.to(indicatorRef.current, {
-        transform: `translateY(${target.offsetTop}px)`,
-        height: target.offsetHeight,
-        duration: 0.42,
-        ease: "power3.out",
-      });
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const duration = reduce ? 0.01 : 0.58;
+      timeline = gsap.timeline({ defaults: { ease: "power4.inOut" } });
+
+      if (menuOpen) {
+        gsap.set(layer, { pointerEvents: "auto" });
+        timeline
+          .to(".content-shell", { transform: reduce ? "none" : "translateX(2.5vw) scale(0.985)", opacity: 0.24, duration }, 0)
+          .fromTo(layer, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration }, 0)
+          .fromTo(".menu-link", { transform: reduce ? "none" : "translateY(78%)", opacity: 0 }, { transform: "translateY(0%)", opacity: 1, stagger: 0.055, duration: reduce ? 0.01 : 0.52, ease: "power4.out" }, 0.22)
+          .fromTo(".menu-register", { transform: reduce ? "none" : "translateX(-24px)", opacity: 0 }, { transform: "translateX(0px)", opacity: 1, duration: reduce ? 0.01 : 0.36, ease: "power3.out" }, 0.42);
+      } else {
+        timeline
+          .to(".menu-link", { transform: reduce ? "none" : "translateY(-26%)", opacity: 0, stagger: { each: 0.025, from: "end" }, duration: reduce ? 0.01 : 0.24, ease: "power2.in" }, 0)
+          .to(layer, { clipPath: "inset(0 100% 0 0)", duration, onComplete: () => gsap.set(layer, { pointerEvents: "none" }) }, 0.12)
+          .to(".content-shell", { transform: "translateX(0) scale(1)", opacity: 1, duration }, 0.12);
+      }
     });
     return () => {
       cancelled = true;
-      tween?.kill();
+      timeline?.kill();
     };
-  }, [navSection, loaded]);
+  }, [loaded, menuOpen]);
 
   useEffect(() => {
     if (!loaded || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -277,7 +318,7 @@ export function SymposiumExperience() {
       context = gsap.context(() => {
         const entrance = gsap.timeline({ defaults: { ease: "power4.out" } });
         entrance
-          .from(".side-brand", { opacity: 0, transform: "translateY(22px)", duration: 0.55 })
+          .from(".rail-brand", { opacity: 0, transform: "translateY(22px)", duration: 0.55 })
           .from(".hero-kicker", { opacity: 0, transform: "translateY(20px)", duration: 0.45 }, 0.08)
           .from(".hero-computational", { opacity: 0, transform: "translateY(105%)", duration: 0.78 }, 0.12)
           .from(".hero-intelligence", { opacity: 0, transform: "translateX(-11%)", duration: 0.78 }, 0.23)
@@ -309,6 +350,22 @@ export function SymposiumExperience() {
               duration: 1.05,
               ease: "power4.inOut",
               scrollTrigger: { trigger: element, start: "top 86%", once: true },
+            },
+          );
+        });
+
+        gsap.utils.toArray<HTMLElement>(".research-entry").forEach((entry) => {
+          const details = entry.querySelectorAll<HTMLElement>(".track-detail");
+          gsap.fromTo(
+            details,
+            { opacity: 0, transform: "translateY(22px)" },
+            {
+              opacity: 1,
+              transform: "translateY(0px)",
+              stagger: 0.08,
+              duration: 0.62,
+              ease: "power3.out",
+              scrollTrigger: { trigger: entry, start: "top 58%", once: true },
             },
           );
         });
@@ -374,51 +431,48 @@ export function SymposiumExperience() {
       <CustomCursor />
       <a className="skip-link" href="#main-content">Skip to content</a>
 
-      <aside className="side-nav" aria-label="Primary navigation">
-        <a className="side-brand" href="#home" aria-label="ISCICPS 2027 home">
-          <strong>ISCICPS</strong><span>'27</span>
+      <aside className={`nav-rail ${menuOpen ? "is-open" : ""}`} aria-label="Navigation control">
+        <a className="rail-brand" href="#home" aria-label="ISCICPS 2027 home" onClick={() => setMenuOpen(false)}>
+          <strong>ISCICPS</strong><span>&apos;27</span>
         </a>
-        <nav>
-          <span ref={indicatorRef} className="nav-indicator" aria-hidden="true" />
-          {navItems.map(([id, label], index) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              className={navSection === id ? "is-active" : ""}
-              aria-current={navSection === id ? "location" : undefined}
-            >
-              <span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong>
-            </a>
-          ))}
-        </nav>
-        <div className="side-foot">
-          <span>{String(navSectionIndex + 1).padStart(2, "0")} / 05</span>
-          <a href="#register" data-cursor="ENTER ↗">REGISTER <i aria-hidden="true">↗</i></a>
-        </div>
+        <button
+          className="menu-trigger"
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls="navigation-layer"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <i aria-hidden="true" /><span>{menuOpen ? "CLOSE" : "MENU"}</span>
+        </button>
+        <span className="rail-index">{String(navSectionIndex + 1).padStart(2, "0")} / 06</span>
       </aside>
 
-      <header className="mobile-nav">
-        <a href="#home" aria-label="ISCICPS 2027 home">ISCICPS <sup>'27</sup></a>
-        <button type="button" aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen((open) => !open)}>
-          {menuOpen ? "CLOSE" : "MENU"}<i aria-hidden="true" />
-        </button>
-      </header>
-
-      <div id="mobile-menu" className={`mobile-menu ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
-        <nav aria-label="Mobile navigation">
+      <div ref={menuLayerRef} id="navigation-layer" className="nav-layer" aria-hidden={!menuOpen}>
+        <div className="nav-layer-meta"><span>ISCICPS &apos;27</span><span>CURRENT / {String(navSectionIndex + 1).padStart(2, "0")}</span></div>
+        <nav aria-label="Primary navigation">
           {navItems.map(([id, label], index) => (
-            <a key={id} href={`#${id}`} onClick={() => setMenuOpen(false)}>
-              <span>{String(index + 1).padStart(2, "0")}</span>{label}
-            </a>
+            <div className="menu-link-frame" key={id}>
+              <a
+                className={`menu-link ${navSection === id ? "is-active" : ""}`}
+                href={`#${id}`}
+                aria-current={navSection === id ? "location" : undefined}
+                tabIndex={menuOpen ? 0 : -1}
+                onClick={() => setMenuOpen(false)}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong>
+              </a>
+            </div>
           ))}
-          <a className="mobile-register" href="#register" onClick={() => setMenuOpen(false)}>REGISTER <span>↗</span></a>
         </nav>
+        <a className="menu-register" href="#register" tabIndex={menuOpen ? 0 : -1} onClick={() => setMenuOpen(false)} data-cursor="ENTER ↗">
+          <span>CALL FOR PAPERS</span><strong>REGISTER</strong><span aria-hidden="true">↗</span>
+        </a>
       </div>
 
       <div className="content-shell">
         <section id="home" className="hero" aria-labelledby="hero-heading">
           <div id="main-content" className="hero-stage">
-            <div className="hero-kicker">ISCICPS '27</div>
+            <div className="hero-kicker">ISCICPS &apos;27</div>
             <div className="hero-meta">
               <span>INTERNATIONAL SYMPOSIUM</span>
               <span>21—22 APRIL 2027</span>
@@ -476,10 +530,25 @@ export function SymposiumExperience() {
                   onFocus={() => setActiveTrack(index)}
                   tabIndex={0}
                 >
-                  <span>{track.number}</span>
-                  <h3>{track.title}</h3>
-                  <p>{track.description}</p>
-                  <ul>{track.keywords.map((keyword) => <li key={keyword}>{keyword}</li>)}</ul>
+                  <div className="track-heading">
+                    <span>TRACK {track.number}</span>
+                    <h3>{track.title}</h3>
+                  </div>
+                  <div className="track-copy">
+                    <p className="track-intro track-detail">{track.introduction}</p>
+                    <div className="track-detail track-areas">
+                      <h4>KEY RESEARCH AREAS</h4>
+                      <ul>{track.areas.map((area) => <li key={area}>{area}</li>)}</ul>
+                    </div>
+                    <div className="track-detail track-why">
+                      <h4>WHY IT MATTERS</h4>
+                      <p>{track.why}</p>
+                    </div>
+                    <div className="track-detail track-applications">
+                      <h4>EXAMPLES / APPLICATIONS</h4>
+                      <ul>{track.applications.map((application) => <li key={application}>{application}</li>)}</ul>
+                    </div>
+                  </div>
                 </article>
               ))}
             </div>
@@ -495,7 +564,7 @@ export function SymposiumExperience() {
                   key={track.number}
                 />
               ))}
-              <span>{researchTracks[activeTrack].number} / 04</span>
+              <span>{researchTracks[activeTrack].number} / 05</span>
             </div>
           </div>
         </section>
@@ -548,7 +617,7 @@ export function SymposiumExperience() {
         </section>
 
         <footer className="site-footer">
-          <a className="footer-mark" href="#home">ISCICPS <sup>'27</sup></a>
+          <a className="footer-mark" href="#home">ISCICPS <sup>&apos;27</sup></a>
           <p>INTERNATIONAL SYMPOSIUM ON<br />COMPUTATIONAL INTELLIGENCE FOR<br />CYBER-PHYSICAL SYSTEMS</p>
           <div><a href="mailto:ieeescicps@gmail.com">ieeescicps@gmail.com</a><span>SRMIST · KATTANKULATHUR</span></div>
           <small>© 2026 ISCICPS</small>
