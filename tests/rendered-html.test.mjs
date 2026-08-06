@@ -23,7 +23,7 @@ async function render() {
   );
 }
 
-test("server-renders the finished ISCICPS experience", async () => {
+test("server-renders the editorial ISCICPS experience", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
@@ -37,7 +37,10 @@ test("server-renders the finished ISCICPS experience", async () => {
   assert.match(html, /APRIL 2027/);
   assert.match(html, /THE ROAD TO ISCICPS/);
   assert.match(html, /RESEARCH UNIVERSE/);
-  assert.match(html, /Trustworthy &amp; Explainable AI/);
+  assert.match(html, /EDGE INTELLIGENCE/);
+  assert.match(html, /AUTONOMOUS SYSTEMS/);
+  assert.match(html, /RESEARCH IS A/);
+  assert.match(html, /KATTAN—/);
   assert.match(html, /href="https:\/\/cmt3\.research\.microsoft\.com\/"/);
   assert.match(html, /href="mailto:ieeescicps@gmail\.com"/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image"\/>/);
@@ -45,7 +48,7 @@ test("server-renders the finished ISCICPS experience", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/);
 });
 
-test("keeps motion, interaction and accessibility behavior intentional", async () => {
+test("keeps motion, imagery and accessibility intentional", async () => {
   const [experience, css, page, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/symposium-experience.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -54,19 +57,24 @@ test("keeps motion, interaction and accessibility behavior intentional", async (
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(experience, /<canvas ref=\{canvasRef\}/);
+  assert.match(experience, /className=\{`loader/);
+  assert.match(experience, /ISCICPS_BOOT/);
+  assert.match(experience, /srm-campus-aerial\.jpg/);
+  assert.match(experience, /srm-research-day\.webp/);
   assert.match(experience, /import\("gsap"\)/);
   assert.match(experience, /import\("gsap\/ScrollTrigger"\)/);
   assert.match(experience, /prefers-reduced-motion: reduce/);
-  assert.match(experience, /aria-pressed=\{activeArea === area\.id\}/);
-  assert.match(experience, /aria-expanded=\{activeTrack === index\}/);
+  assert.match(experience, /aria-current=\{activeSection === id/);
   assert.match(experience, /className="skip-link"/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /:focus-visible/);
-  assert.match(css, /@media \(max-width: 760px\)/);
+  assert.match(css, /@media \(max-width: 640px\)/);
   assert.match(page, /SymposiumExperience/);
   assert.match(layout, /og\.png/);
   assert.match(packageJson, /"gsap": "\^3\.13\.0"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await access(new URL("../public/og.png", import.meta.url));
+  await access(new URL("../public/images/srm-campus-aerial.jpg", import.meta.url));
+  await access(new URL("../public/images/srm-auditorium-1920.jpg", import.meta.url));
+  await access(new URL("../public/images/srm-research-day.webp", import.meta.url));
 });
