@@ -278,7 +278,7 @@ export function SymposiumExperience() {
     const layer = menuLayerRef.current;
     if (!loaded || !layer) return;
     let cancelled = false;
-    let timeline: { kill: () => void } | undefined;
+    let timeline: GSAPTimeline | undefined;
     import("gsap").then(({ gsap }) => {
       if (cancelled) return;
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -295,7 +295,13 @@ export function SymposiumExperience() {
       } else {
         timeline
           .to(".menu-link", { transform: reduce ? "none" : "translateY(-26%)", opacity: 0, stagger: { each: 0.025, from: "end" }, duration: reduce ? 0.01 : 0.24, ease: "power2.in" }, 0)
-          .to(layer, { clipPath: "inset(0 100% 0 0)", duration, onComplete: () => gsap.set(layer, { pointerEvents: "none" }) }, 0.12)
+          .to(layer, {
+            clipPath: "inset(0 100% 0 0)",
+            duration,
+            onComplete: () => {
+              gsap.set(layer, { pointerEvents: "none" });
+            },
+          }, 0.12)
           .to(".content-shell", { transform: "translateX(0) scale(1)", opacity: 1, duration }, 0.12);
       }
     });
