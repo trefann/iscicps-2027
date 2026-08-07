@@ -214,19 +214,62 @@ export function SymposiumExperience() {
   const [activeMilestone, setActiveMilestone] = useState(0);
   const rootRef = useRef<HTMLElement>(null);
   const menuLayerRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const completeLoading = useCallback(() => setLoaded(true), []);
+  const navigateFromMenu = useCallback((event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    event.preventDefault();
+    setMenuOpen(false);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        window.history.pushState(null, "", `#${id}`);
+        document.getElementById(id)?.scrollIntoView();
+      });
+    });
+  }, []);
   const navSection = navItems.some(([id]) => id === activeSection) ? activeSection : "home";
   const navSectionIndex = navItems.findIndex(([id]) => id === navSection);
 
   useEffect(() => {
-    document.body.classList.toggle("menu-is-open", menuOpen);
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
-    window.addEventListener("keydown", closeOnEscape);
+    if (!menuOpen) return;
+
+    const body = document.body;
+    body.classList.add("menu-is-open");
+
     return () => {
-      document.body.classList.remove("menu-is-open");
-      window.removeEventListener("keydown", closeOnEscape);
+      body.classList.remove("menu-is-open");
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen || !menuLayerRef.current) return;
+    const layer = menuLayerRef.current;
+    const focusable = [
+      menuButtonRef.current,
+      ...Array.from(layer.querySelectorAll<HTMLElement>("a[href]")),
+    ].filter((element): element is HTMLElement => Boolean(element));
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    const handleMenuKeydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMenuOpen(false);
+        window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+        return;
+      }
+      if (event.key !== "Tab" || focusable.length === 0) return;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleMenuKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleMenuKeydown);
     };
   }, [menuOpen]);
 
@@ -282,27 +325,27 @@ export function SymposiumExperience() {
     import("gsap").then(({ gsap }) => {
       if (cancelled) return;
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const duration = reduce ? 0.01 : 0.58;
+      const duration = reduce ? 0.01 : menuOpen ? 0.46 : 0.36;
       timeline = gsap.timeline({ defaults: { ease: "power4.inOut" } });
 
       if (menuOpen) {
         gsap.set(layer, { pointerEvents: "auto" });
         timeline
-          .to(".content-shell", { transform: reduce ? "none" : "translateX(2.5vw) scale(0.985)", opacity: 0.24, duration }, 0)
-          .fromTo(layer, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration }, 0)
-          .fromTo(".menu-link", { transform: reduce ? "none" : "translateY(78%)", opacity: 0 }, { transform: "translateY(0%)", opacity: 1, stagger: 0.055, duration: reduce ? 0.01 : 0.52, ease: "power4.out" }, 0.22)
-          .fromTo(".menu-register", { transform: reduce ? "none" : "translateX(-24px)", opacity: 0 }, { transform: "translateX(0px)", opacity: 1, duration: reduce ? 0.01 : 0.36, ease: "power3.out" }, 0.42);
+          .to(".content-shell", { transform: reduce ? "none" : "translateY(1.5vh) scale(0.985)", opacity: 0.18, duration }, 0)
+          .fromTo(layer, { clipPath: "inset(0 0 0 100%)" }, { clipPath: "inset(0 0% 0 0)", duration }, 0)
+          .fromTo(".menu-link", { transform: reduce ? "none" : "translateY(62%)", opacity: 0 }, { transform: "translateY(0%)", opacity: 1, stagger: 0.04, duration: reduce ? 0.01 : 0.32, ease: "power4.out" }, 0.1)
+          .fromTo(".menu-register", { transform: reduce ? "none" : "translateX(18px)", opacity: 0 }, { transform: "translateX(0px)", opacity: 1, duration: reduce ? 0.01 : 0.24, ease: "power3.out" }, 0.24);
       } else {
         timeline
-          .to(".menu-link", { transform: reduce ? "none" : "translateY(-26%)", opacity: 0, stagger: { each: 0.025, from: "end" }, duration: reduce ? 0.01 : 0.24, ease: "power2.in" }, 0)
+          .to(".menu-link", { transform: reduce ? "none" : "translateY(24%)", opacity: 0, stagger: { each: 0.022, from: "end" }, duration: reduce ? 0.01 : 0.2, ease: "power2.in" }, 0)
           .to(layer, {
-            clipPath: "inset(0 100% 0 0)",
+            clipPath: "inset(0 0 0 100%)",
             duration,
             onComplete: () => {
               gsap.set(layer, { pointerEvents: "none" });
             },
           }, 0.12)
-          .to(".content-shell", { transform: "translateX(0) scale(1)", opacity: 1, duration }, 0.12);
+          .to(".content-shell", { transform: "translateY(0) scale(1)", opacity: 1, duration }, 0.08);
       }
     });
     return () => {
@@ -324,7 +367,8 @@ export function SymposiumExperience() {
       context = gsap.context(() => {
         const entrance = gsap.timeline({ defaults: { ease: "power4.out" } });
         entrance
-          .from(".rail-brand", { opacity: 0, transform: "translateY(22px)", duration: 0.55 })
+          .from(".menu-trigger", { opacity: 0, transform: "translateY(-12px)", duration: 0.42 })
+          .fromTo(".hero-visual", { clipPath: "inset(48% 48% 48% 48%)" }, { clipPath: "inset(8% 9% 9% 7%)", duration: 0.92, ease: "power4.inOut" }, 0.04)
           .from(".hero-kicker", { opacity: 0, transform: "translateY(20px)", duration: 0.45 }, 0.08)
           .from(".hero-computational", { opacity: 0, transform: "translateY(105%)", duration: 0.78 }, 0.12)
           .from(".hero-intelligence", { opacity: 0, transform: "translateX(-11%)", duration: 0.78 }, 0.23)
@@ -380,12 +424,12 @@ export function SymposiumExperience() {
           scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom bottom", scrub: 0.7 },
         });
         heroScroll
-          .fromTo(".hero-image", { clipPath: "inset(42% 46% 42% 46%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "power3.inOut" }, 0)
-          .fromTo(".hero-image img", { transform: "scale(1.22) translateY(-3%)" }, { transform: "scale(1.05) translateY(4%)", ease: "none" }, 0)
-          .to(".hero-computational", { transform: "translateY(-38%)", opacity: 0.18, ease: "none" }, 0)
-          .to(".hero-intelligence", { transform: "translateX(9%)", ease: "none" }, 0)
-          .to(".hero-cyber", { transform: "translateX(-7%)", ease: "none" }, 0)
-          .to(".hero-systems", { transform: "translateX(7%)", ease: "none" }, 0);
+          .to(".hero-visual", { clipPath: "inset(0% 0% 0% 0%)", ease: "power3.inOut" }, 0)
+          .fromTo(".hero-image img", { transform: "scale(1.02) translateY(-2%)" }, { transform: "scale(1.08) translateY(3%)", ease: "none" }, 0)
+          .to(".hero-computational", { transform: "translateY(-26%)", opacity: 0.32, ease: "none" }, 0)
+          .to(".hero-intelligence", { transform: "translateX(6%)", ease: "none" }, 0)
+          .to(".hero-cyber", { transform: "translateX(-4%)", ease: "none" }, 0)
+          .to(".hero-systems", { transform: "translateX(4%)", ease: "none" }, 0);
 
         gsap.fromTo(
           ".matter-word",
@@ -437,23 +481,23 @@ export function SymposiumExperience() {
       <CustomCursor />
       <a className="skip-link" href="#main-content">Skip to content</a>
 
-      <aside className={`nav-rail ${menuOpen ? "is-open" : ""}`} aria-label="Navigation control">
-        <a className="rail-brand" href="#home" aria-label="ISCICPS 2027 home" onClick={() => setMenuOpen(false)}>
-          <strong>ISCICPS</strong><span>&apos;27</span>
-        </a>
+      <aside className={`nav-control ${menuOpen ? "is-open" : ""}`} aria-label="Navigation control">
         <button
+          ref={menuButtonRef}
           className="menu-trigger"
           type="button"
+          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
           aria-expanded={menuOpen}
           aria-controls="navigation-layer"
           onClick={() => setMenuOpen((open) => !open)}
         >
-          <i aria-hidden="true" /><span>{menuOpen ? "CLOSE" : "MENU"}</span>
+          <span className="menu-line" aria-hidden="true" />
+          <span className="menu-line" aria-hidden="true" />
+          <span className="menu-line" aria-hidden="true" />
         </button>
-        <span className="rail-index">{String(navSectionIndex + 1).padStart(2, "0")} / 06</span>
       </aside>
 
-      <div ref={menuLayerRef} id="navigation-layer" className="nav-layer" aria-hidden={!menuOpen}>
+      <div ref={menuLayerRef} id="navigation-layer" className="nav-layer" role="dialog" aria-modal="true" aria-label="Site navigation" aria-hidden={!menuOpen}>
         <div className="nav-layer-meta"><span>ISCICPS &apos;27</span><span>CURRENT / {String(navSectionIndex + 1).padStart(2, "0")}</span></div>
         <nav aria-label="Primary navigation">
           {navItems.map(([id, label], index) => (
@@ -463,14 +507,14 @@ export function SymposiumExperience() {
                 href={`#${id}`}
                 aria-current={navSection === id ? "location" : undefined}
                 tabIndex={menuOpen ? 0 : -1}
-                onClick={() => setMenuOpen(false)}
+                onClick={(event) => navigateFromMenu(event, id)}
               >
                 <span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong>
               </a>
             </div>
           ))}
         </nav>
-        <a className="menu-register" href="#register" tabIndex={menuOpen ? 0 : -1} onClick={() => setMenuOpen(false)} data-cursor="ENTER ↗">
+        <a className="menu-register" href="#register" tabIndex={menuOpen ? 0 : -1} onClick={(event) => navigateFromMenu(event, "register")} data-cursor="ENTER ↗">
           <span>CALL FOR PAPERS</span><strong>REGISTER</strong><span aria-hidden="true">↗</span>
         </a>
       </div>
@@ -484,8 +528,13 @@ export function SymposiumExperience() {
               <span>21—22 APRIL 2027</span>
               <span>SRMIST · CHENNAI</span>
             </div>
-            <div className="hero-image" data-cursor="VIEW ↗">
-              <img src="/images/srm-campus-aerial.jpg" alt="Aerial view of the SRMIST Kattankulathur campus" />
+            <div className="hero-visual" data-cursor="VIEW ↗">
+              <div className="hero-image hero-image-base">
+                <img src="/images/srm-campus-aerial.jpg" alt="Aerial view of the SRMIST Kattankulathur campus" fetchPriority="high" decoding="async" />
+              </div>
+              <div className="hero-image hero-image-negative" aria-hidden="true">
+                <img src="/images/srm-campus-aerial.jpg" alt="" decoding="async" />
+              </div>
             </div>
             <h1 id="hero-heading" className="hero-title">
               <span className="hero-computational">COMPUTATIONAL</span>

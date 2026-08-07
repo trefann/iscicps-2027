@@ -74,10 +74,13 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /className=\{`loader/);
   assert.match(experience, /ISCICPS_BOOT/);
   assert.match(experience, /className="custom-cursor"/);
-  assert.match(experience, /className=\{`nav-rail/);
+  assert.match(experience, /className=\{`nav-control/);
   assert.match(experience, /className="nav-layer"/);
   assert.match(experience, /className="menu-trigger"/);
+  assert.match(experience, /aria-label=\{menuOpen \? "Close navigation" : "Open navigation"\}/);
   assert.match(experience, /className="menu-link-frame"/);
+  assert.match(experience, /className="hero-visual"/);
+  assert.match(experience, /className="hero-image hero-image-negative"/);
   assert.match(experience, /data-cursor=/);
   assert.match(experience, /srm-campus-aerial\.jpg/);
   assert.match(experience, /srm-auditorium-1920\.jpg/);
