@@ -559,7 +559,7 @@ export function SymposiumExperience() {
             <a className="hero-host" href="https://www.srmist.edu.in/" target="_blank" rel="noreferrer" aria-label="Visit SRM Institute of Science and Technology">
               <span>HOST INSTITUTION</span>
               <span className="hero-host-logo">
-                <img src="/images/srm-logo-source.jpg" alt="SRM Institute of Science and Technology" />
+                <img src="/images/srm-logo-transparent.png" alt="SRM Institute of Science and Technology" />
               </span>
             </a>
             <div className="hero-meta">

@@ -199,8 +199,8 @@ img { display: block; }
 .hero-kicker { position: relative; z-index: 4; color: var(--blue); font-size: clamp(0.92rem, 1.45vw, 1.4rem); font-weight: 800; letter-spacing: -0.035em; }
 .hero-host { position: absolute; z-index: 6; top: clamp(1.45rem, 4.1vh, 3.7rem); right: clamp(5.4rem, 7.5vw, 8.5rem); display: grid; gap: 0.42rem; width: clamp(11.5rem, 16vw, 15.5rem); }
 .hero-host > span:first-child { color: var(--cyan); font-family: var(--font-mono), monospace; font-size: clamp(0.45rem, 0.52vw, 0.56rem); font-weight: 650; letter-spacing: 0.13em; text-align: right; }
-.hero-host-logo { display: block; aspect-ratio: 2.82 / 1; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(244, 244, 240, 0.18); transition: transform 220ms var(--ease-out), box-shadow 220ms ease; }
-.hero-host-logo img { width: 100%; height: auto; transform: translateY(-31.5%); }
+.hero-host-logo { display: block; aspect-ratio: 2.82 / 1; overflow: hidden; background: transparent; transition: transform 220ms var(--ease-out), opacity 220ms ease; }
+.hero-host-logo img { width: 100%; height: auto; transform: translateY(-31.5%); filter: brightness(0) invert(1); opacity: 0.9; }
 .hero-meta { position: absolute; z-index: 4; right: var(--page); bottom: clamp(1.5rem, 3vw, 3rem); left: var(--page); display: grid; grid-template-columns: 1fr 1fr 1fr; color: rgba(244, 244, 240, 0.6); font-family: var(--font-mono), monospace; font-size: clamp(0.5rem, 0.64vw, 0.62rem); font-weight: 580; letter-spacing: 0.11em; text-transform: uppercase; }
 .hero-meta span:nth-child(2) { justify-self: center; }
 .hero-meta span:last-child { justify-self: end; }
