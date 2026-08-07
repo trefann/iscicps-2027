@@ -84,6 +84,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /className="hero-image hero-image-negative"/);
   assert.match(experience, /className="global-host"/);
   assert.match(experience, /srm-seal\.png/);
+  assert.doesNotMatch(experience, /global-host-lockup/);
   assert.match(experience, /className={`track-card/);
   assert.match(experience, /className="track-dialog"/);
   assert.match(experience, /className="footer-reveal"/);
