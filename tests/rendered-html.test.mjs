@@ -44,9 +44,10 @@ test("server-renders the refined editorial ISCICPS experience", async () => {
   assert.match(html, /Smart Energy &amp; Industrial Infrastructure/);
   assert.match(html, /Security, Privacy &amp; Resilience in CPS/);
   assert.match(html, /Trustworthy &amp; Explainable AI for Physical Systems/);
-  assert.match(html, /KEY RESEARCH AREAS/);
-  assert.match(html, /WHY IT MATTERS/);
-  assert.match(html, /EXAMPLES \/ APPLICATIONS/);
+  assert.match(html, /EXPLORE TRACK/);
+  assert.match(html, /Computational intelligence operating close to the physical processes it observes/);
+  assert.doesNotMatch(html, /WHY IT MATTERS/);
+  assert.doesNotMatch(html, /EXAMPLES \/ APPLICATIONS/);
   assert.match(html, /IMPORTANT DATES/);
   assert.match(html, /KATTAN/);
   assert.match(html, /SUBMIT[\s\S]*YOUR[\s\S]*RESEARCH/);
@@ -81,6 +82,12 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /className="menu-link-frame"/);
   assert.match(experience, /className="hero-visual"/);
   assert.match(experience, /className="hero-image hero-image-negative"/);
+  assert.match(experience, /className="global-host"/);
+  assert.match(experience, /className={`track-card/);
+  assert.match(experience, /className="track-dialog"/);
+  assert.match(experience, /className="footer-reveal"/);
+  assert.match(experience, /KEY RESEARCH AREAS/);
+  assert.match(experience, /WHY IT MATTERS/);
   assert.match(experience, /data-cursor=/);
   assert.match(experience, /srm-campus-aerial\.jpg/);
   assert.match(experience, /srm-auditorium-1920\.jpg/);
@@ -100,7 +107,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(css, /--white: #f4f4f0/);
   assert.match(css, /--blue: #6674ff/);
   assert.match(css, /--cyan: #4cc9f0/);
-  assert.doesNotMatch(css, /--dark-blue|side-nav|mobile-menu/);
+  assert.doesNotMatch(css, /--dark-blue|mobile-menu/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media \(max-width: 800px\)/);
