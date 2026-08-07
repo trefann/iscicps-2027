@@ -305,16 +305,49 @@ export function SymposiumExperience() {
 
   useEffect(() => {
     if (!loaded) return;
+    const timeline = document.querySelector<HTMLElement>(".timeline");
     const entries = Array.from(document.querySelectorAll<HTMLElement>(".timeline li"));
-    const observer = new IntersectionObserver(
-      (observed) => {
-        const visible = observed.find((entry) => entry.isIntersecting);
-        if (visible) setActiveMilestone(Number((visible.target as HTMLElement).dataset.index ?? 0));
-      },
-      { rootMargin: "-35% 0px -48%", threshold: 0.01 },
-    );
-    entries.forEach((entry) => observer.observe(entry));
-    return () => observer.disconnect();
+    if (!timeline || entries.length === 0) return;
+
+    let frame = 0;
+    const updateMilestone = () => {
+      frame = 0;
+      const viewportHeight = window.innerHeight;
+      let nextMilestone = 0;
+
+      if (window.innerWidth <= 540) {
+        const activationLine = viewportHeight * 0.44;
+        nextMilestone = entries.reduce((closestIndex, entry, index) => {
+          const entryRect = entry.getBoundingClientRect();
+          const closestRect = entries[closestIndex].getBoundingClientRect();
+          const entryDistance = Math.abs(entryRect.top + entryRect.height * 0.34 - activationLine);
+          const closestDistance = Math.abs(closestRect.top + closestRect.height * 0.34 - activationLine);
+          return entryDistance < closestDistance ? index : closestIndex;
+        }, 0);
+      } else {
+        const timelineRect = timeline.getBoundingClientRect();
+        const startLine = viewportHeight * 0.72;
+        const scrollRange = Math.max(1, timelineRect.height - viewportHeight * 0.38);
+        const progress = Math.min(1, Math.max(0, (startLine - timelineRect.top) / scrollRange));
+        nextMilestone = Math.round(progress * (entries.length - 1));
+      }
+
+      setActiveMilestone((current) => current === nextMilestone ? current : nextMilestone);
+    };
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(updateMilestone);
+    };
+
+    updateMilestone();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
   }, [loaded]);
 
   useEffect(() => {
@@ -523,6 +556,12 @@ export function SymposiumExperience() {
         <section id="home" className="hero" aria-labelledby="hero-heading">
           <div id="main-content" className="hero-stage">
             <div className="hero-kicker">ISCICPS &apos;27</div>
+            <a className="hero-host" href="https://www.srmist.edu.in/" target="_blank" rel="noreferrer" aria-label="Visit SRM Institute of Science and Technology">
+              <span>HOST INSTITUTION</span>
+              <span className="hero-host-logo">
+                <img src="/images/srm-logo-source.jpg" alt="SRM Institute of Science and Technology" />
+              </span>
+            </a>
             <div className="hero-meta">
               <span>INTERNATIONAL SYMPOSIUM</span>
               <span>21—22 APRIL 2027</span>
@@ -630,7 +669,15 @@ export function SymposiumExperience() {
           <div className="timeline-progress" aria-hidden="true"><i /></div>
           <ol>
             {milestones.map((milestone, index) => (
-              <li className={activeMilestone === index ? "is-active" : ""} data-index={index} key={milestone.iso}>
+              <li
+                className={activeMilestone === index ? "is-active" : ""}
+                data-index={index}
+                key={milestone.iso}
+                tabIndex={0}
+                aria-current={activeMilestone === index ? "date" : undefined}
+                onMouseEnter={() => setActiveMilestone(index)}
+                onFocus={() => setActiveMilestone(index)}
+              >
                 <time dateTime={milestone.iso}>
                   <strong>{milestone.day}</strong>
                   <span>{milestone.month}<br />{milestone.year}</span>
