@@ -83,6 +83,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /className="hero-visual"/);
   assert.match(experience, /className="hero-image hero-image-negative"/);
   assert.match(experience, /className="global-host"/);
+  assert.match(experience, /srm-seal\.png/);
   assert.match(experience, /className={`track-card/);
   assert.match(experience, /className="track-dialog"/);
   assert.match(experience, /className="footer-reveal"/);
@@ -120,6 +121,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await access(new URL("../public/og.png", import.meta.url));
   await access(new URL("../public/images/srm-campus-aerial.jpg", import.meta.url));
+  await access(new URL("../public/images/srm-seal.png", import.meta.url));
   await access(new URL("../public/images/srm-auditorium-1920.jpg", import.meta.url));
   await access(new URL("../public/images/srm-research-day.webp", import.meta.url));
   await access(new URL("../public/images/tracks/edge-ai.webp", import.meta.url));

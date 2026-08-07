@@ -566,7 +566,8 @@ export function SymposiumExperience() {
       {!loaded && <LoadingExperience onComplete={completeLoading} />}
       <CustomCursor />
       <a className="global-host" href="https://www.srmist.edu.in/" target="_blank" rel="noreferrer" aria-label="Visit SRM Institute of Science and Technology">
-        <img src="/images/srm-logo-transparent.png" alt="SRM Institute of Science and Technology" />
+        <img className="global-host-lockup" src="/images/srm-logo-transparent.png" alt="SRM Institute of Science and Technology" />
+        <img className="global-host-seal" src="/images/srm-seal.png" alt="" aria-hidden="true" />
       </a>
       <a className="skip-link" href="#main-content">Skip to content</a>
 
