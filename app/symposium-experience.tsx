@@ -410,19 +410,6 @@ export function SymposiumExperience() {
           scrollTrigger: { trigger: ".track-deck", start: "top 84%", once: true },
         });
 
-        const heroScroll = gsap.timeline({
-          scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom bottom", scrub: 0.7 },
-        });
-        heroScroll
-          .to(".hero-visual", { transform: "scale(1.035) translateY(2%)", ease: "none" }, 0)
-          .fromTo(".hero-image img", { transform: "scale(1.01) translateY(-1%)" }, { transform: "scale(1.075) translateY(3%) rotate(0.5deg)", ease: "none" }, 0)
-          .to(".hero-title", { scale: 0.97, ease: "none" }, 0)
-          .to(".hero-line-one", { transform: "translateX(-1.6%)", opacity: 0.46, ease: "none" }, 0)
-          .to(".hero-line-two", { transform: "translateX(1.2%)", ease: "none" }, 0)
-          .to(".hero-line-three", { transform: "translateY(18%)", opacity: 0.62, ease: "none" }, 0)
-          .to(".hero-researcher", { transform: "translateY(-12%)", ease: "none" }, 0)
-          .to(".hero-annotation", { opacity: 0, stagger: 0.03, ease: "none" }, 0);
-
         gsap.fromTo(
           ".matter-word",
           { opacity: 0.14, transform: "translateX(-4%)" },
@@ -540,18 +527,20 @@ export function SymposiumExperience() {
             <div className="hero-kicker">International Symposium On</div>
             <div className="hero-visual" data-cursor="EXPLORE ↗">
               <div className="hero-image hero-image-base">
-                <img src="/images/iscicps-hero-sculpture.png" alt="A cobalt mechanical hand holding a graphite sphere encircled by a circuit ribbon" fetchPriority="high" decoding="async" />
+                <img src="/images/iscicps-hero-sculpture-transparent.png" alt="A cobalt mechanical hand holding a graphite sphere encircled by a circuit ribbon" fetchPriority="high" decoding="async" />
               </div>
               <span className="hero-annotation hero-annotation-a" aria-hidden="true">μ4</span>
-              <span className="hero-annotation hero-annotation-b" aria-hidden="true">Nc6</span>
-              <span className="hero-annotation hero-annotation-c" aria-hidden="true">Δt &lt; 10ms</span>
-              <span className="hero-annotation hero-annotation-d" aria-hidden="true">NF3</span>
-              <span className="hero-annotation hero-annotation-e" aria-hidden="true">Be5</span>
-              <span className="hero-annotation hero-annotation-f" aria-hidden="true">d3</span>
-              <div className="hero-researcher" role="img" aria-label="A hand-drawn researcher continuously typing on a laptop">
-                <img className="hero-researcher-base" src="/images/hero-researcher.png" alt="" decoding="async" />
-                <img className="hero-researcher-hands" src="/images/hero-researcher.png" alt="" aria-hidden="true" decoding="async" />
-                <span className="typing-signal" aria-hidden="true"><i /><i /><i /></span>
+              <span className="hero-annotation hero-annotation-b" aria-hidden="true">c5</span>
+              <span className="hero-annotation hero-annotation-c" aria-hidden="true">NF3</span>
+              <span className="hero-annotation hero-annotation-d" aria-hidden="true">c3</span>
+              <span className="hero-annotation hero-annotation-e" aria-hidden="true">d6</span>
+              <span className="hero-annotation hero-annotation-f" aria-hidden="true">Nc6</span>
+              <span className="hero-annotation hero-annotation-g" aria-hidden="true">Be5</span>
+              <span className="hero-annotation hero-annotation-h" aria-hidden="true">Ba4</span>
+              <span className="hero-annotation hero-annotation-i" aria-hidden="true">d3</span>
+              <span className="hero-annotation hero-annotation-j" aria-hidden="true">O-O</span>
+              <div className="hero-researcher" role="img" aria-label="A hand-drawn researcher working on a laptop">
+                <img className="hero-researcher-base" src="/images/hero-researcher-transparent.png" alt="" decoding="async" />
               </div>
             </div>
             <h1 id="hero-heading" className="hero-title">
@@ -560,7 +549,11 @@ export function SymposiumExperience() {
               <span className="hero-line hero-line-three">SYSTEMS</span>
             </h1>
             <span className="hero-compass" aria-hidden="true"><i>N</i><b /><i>S</i></span>
-            <span className="hero-scroll-mark" aria-hidden="true">c&nbsp;&nbsp;e&nbsp;&nbsp;s&nbsp;&nbsp;c&nbsp;&nbsp;z<br />z&nbsp;&nbsp;&nbsp;&nbsp;⌁&nbsp;&nbsp;&nbsp;&nbsp;L</span>
+            <span className="hero-scroll-mark" aria-hidden="true">
+              <span>c&nbsp;&nbsp;&nbsp;e&nbsp;&nbsp;&nbsp;s&nbsp;&nbsp;&nbsp;c&nbsp;&nbsp;&nbsp;z</span>
+              <i />
+              <b>z&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L</b>
+            </span>
           </div>
         </section>
 

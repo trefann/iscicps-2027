@@ -85,10 +85,9 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /className="hero-annotation/);
   assert.match(experience, /className="hero-line hero-line-one"/);
   assert.match(experience, /className="hero-researcher"/);
-  assert.match(experience, /className="hero-researcher-hands"/);
-  assert.match(experience, /className="typing-signal"/);
+  assert.doesNotMatch(experience, /hero-researcher-hands|typing-signal|continuously typing/);
   assert.match(experience, /className="hero-primary-nav"/);
-  assert.match(experience, /iscicps-hero-sculpture\.png/);
+  assert.match(experience, /iscicps-hero-sculpture-transparent\.png/);
   assert.match(experience, /className="global-host"/);
   assert.match(experience, /srm-seal\.png/);
   assert.doesNotMatch(experience, /global-host-lockup/);
@@ -119,9 +118,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.doesNotMatch(css, /--dark-blue|mobile-menu/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.doesNotMatch(css, /\.loader|@keyframes loader-/);
-  assert.match(css, /@keyframes researcher-type/);
-  assert.match(css, /@keyframes researcher-breathe/);
-  assert.match(css, /@keyframes typing-dot/);
+  assert.doesNotMatch(css, /researcher-type|researcher-breathe|typing-dot/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media \(max-width: 800px\)/);
   assert.match(css, /@media \(max-width: 540px\)/);
@@ -137,8 +134,9 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   await access(new URL("../public/images/srm-seal.png", import.meta.url));
   await access(new URL("../public/images/srm-auditorium-1920.jpg", import.meta.url));
   await access(new URL("../public/images/srm-research-day.webp", import.meta.url));
-  await access(new URL("../public/images/iscicps-hero-sculpture.png", import.meta.url));
-  await access(new URL("../public/images/hero-researcher.png", import.meta.url));
+  await access(new URL("../public/images/iscicps-hero-sculpture-transparent.png", import.meta.url));
+  await access(new URL("../public/images/hero-researcher-transparent.png", import.meta.url));
+  await access(new URL("../public/fonts/bodoni-moda-latin.woff2", import.meta.url));
   await access(new URL("../public/images/tracks/edge-ai.webp", import.meta.url));
   await access(new URL("../public/images/tracks/autonomous-systems.webp", import.meta.url));
   await access(new URL("../public/images/tracks/smart-energy.webp", import.meta.url));
