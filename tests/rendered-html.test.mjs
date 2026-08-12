@@ -36,7 +36,8 @@ test("server-renders the refined editorial ISCICPS experience", async () => {
   assert.match(html, /CYBER-PHYSICAL/);
   assert.match(html, /21.*22/);
   assert.match(html, /April 2027/i);
-  assert.match(html, /INTELLIGENCE[\s\S]*MEETS[\s\S]*PHYSICAL[\s\S]*SYSTEMS/);
+  assert.match(html, /Cyber-physical systems begin when computation leaves the screen and enters the world/);
+  assert.match(html, /ISCICPS brings researchers together to shape that future/);
   assert.match(html, /THE PHYSICAL[\s\S]*WORLD/);
   assert.match(html, /BECOMES[\s\S]*COMPUTATIONAL/);
   assert.match(html, /RESEARCH[\s\S]*FIELDS/);
@@ -99,7 +100,10 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /data-cursor=/);
   assert.match(experience, /srm-campus-aerial\.jpg/);
   assert.match(experience, /srm-auditorium-1920\.jpg/);
-  assert.match(experience, /srm-research-day\.webp/);
+  assert.match(experience, /className="about-manifesto"/);
+  assert.match(experience, /className="about-word"/);
+  assert.match(experience, /className="about-doodle about-doodle--researcher"/);
+  assert.match(experience, /cursor = progress \* \(manifestoWords\.length \+ 2\.6\)/);
   assert.match(experience, /edge-ai\.webp/);
   assert.match(experience, /autonomous-systems\.webp/);
   assert.match(experience, /smart-energy\.webp/);
@@ -117,6 +121,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(css, /--cyan: #4cc9f0/);
   assert.doesNotMatch(css, /--dark-blue|mobile-menu/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(css, /\.about-word \{ color: var\(--ink\) !important; \}/);
   assert.doesNotMatch(css, /\.loader|@keyframes loader-/);
   assert.doesNotMatch(css, /researcher-type|researcher-breathe|typing-dot/);
   assert.match(css, /:focus-visible/);

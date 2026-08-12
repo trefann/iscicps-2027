@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
 const navItems = [
   ["home", "Home"],
@@ -75,6 +75,9 @@ const milestones = [
   { day: "15", month: "JAN", year: "2027", iso: "2027-01-15", title: "Registration" },
   { day: "21—22", month: "APR", year: "2027", iso: "2027-04-21", title: "ISCICPS '27" },
 ];
+
+const aboutManifesto = "Cyber-physical systems begin when computation leaves the screen and enters the world, sensing movement, interpreting uncertainty, and turning intelligence into physical action. Yet meaningful progress demands more than speed: it requires machines that remain safe, resilient, explainable, and worthy of human trust. ISCICPS brings researchers together to shape that future.";
+const aboutWords = aboutManifesto.split(" ");
 
 function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -367,6 +370,8 @@ export function SymposiumExperience() {
     if (!loaded || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let context: { revert: () => void } | undefined;
     let cancelled = false;
+    let manifestoWords: HTMLElement[] = [];
+    let manifestoDoodles: HTMLElement[] = [];
 
     Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([gsapModule, scrollModule]) => {
       if (cancelled) return;
@@ -422,7 +427,34 @@ export function SymposiumExperience() {
           },
         );
 
-        gsap.utils.toArray<HTMLImageElement>(".about-image img, .venue-image img").forEach((image) => {
+        manifestoWords = gsap.utils.toArray<HTMLElement>(".about-word");
+        manifestoDoodles = gsap.utils.toArray<HTMLElement>(".about-doodle");
+        if (manifestoWords.length) {
+          ScrollTrigger.create({
+            trigger: ".about-manifesto",
+            start: "top 72%",
+            end: () => window.innerWidth <= 800 ? "bottom 32%" : "top -15%",
+            invalidateOnRefresh: true,
+            scrub: true,
+            onUpdate: ({ progress }) => {
+              const cursor = progress * (manifestoWords.length + 2.6);
+              manifestoWords.forEach((word, index) => {
+                const strength = Math.min(1, Math.max(0, (cursor - index) / 2.6));
+                const red = Math.round(174 + (21 - 174) * strength);
+                const green = Math.round(174 + (25 - 174) * strength);
+                const blue = Math.round(171 + (34 - 171) * strength);
+                word.style.color = `rgb(${red}, ${green}, ${blue})`;
+              });
+              manifestoDoodles.forEach((doodle) => {
+                const index = Number(doodle.dataset.aboutIndex ?? 0);
+                const strength = Math.min(1, Math.max(0, (cursor - index) / 2.6));
+                doodle.style.opacity = String(0.24 + strength * 0.76);
+              });
+            },
+          });
+        }
+
+        gsap.utils.toArray<HTMLImageElement>(".venue-image img").forEach((image) => {
           gsap.fromTo(
             image,
             { transform: "scale(1.08) translateY(-2%)" },
@@ -451,6 +483,8 @@ export function SymposiumExperience() {
     return () => {
       cancelled = true;
       context?.revert();
+      manifestoWords.forEach((word) => word.style.removeProperty("color"));
+      manifestoDoodles.forEach((doodle) => doodle.style.removeProperty("opacity"));
     };
   }, [loaded]);
 
@@ -568,17 +602,29 @@ export function SymposiumExperience() {
         </section>
 
         <section id="about" className="about" aria-labelledby="about-title">
-          <div className="section-note" data-reveal><span>01</span><span>ABOUT</span></div>
-          <div className="about-copy">
-            <h2 id="about-title" data-reveal>INTELLIGENCE<br />MEETS<br /><span>PHYSICAL</span><br />SYSTEMS.</h2>
-            <p data-reveal>
-              IEEE ISCICPS is an international symposium for researchers, engineers and industry practitioners exploring computational intelligence inside connected physical systems.
-            </p>
-          </div>
-          <figure className="about-image" data-mask data-cursor="VIEW ↗">
-            <img loading="lazy" src="/images/srm-research-day.webp" alt="Researchers and institutional leaders gathered at SRMIST Research Day" />
-            <figcaption>SRMIST RESEARCH DAY · KATTANKULATHUR</figcaption>
-          </figure>
+          <div className="section-note about-note"><span>01</span><span>ABOUT THE SYMPOSIUM</span></div>
+          <h2 id="about-title" className="about-heading">Where intelligence enters the physical world</h2>
+          <p className="about-manifesto" aria-label={aboutManifesto}>
+            {aboutWords.map((word, index) => (
+              <Fragment key={`${word}-${index}`}>
+                {index === 7 ? (
+                  <span className="about-doodle about-doodle--researcher" data-about-index="7" aria-hidden="true">
+                    <img src="/images/hero-researcher-transparent.png" alt="" loading="lazy" />
+                  </span>
+                ) : null}
+                {index === 29 ? (
+                  <span className="about-doodle about-doodle--system" data-about-index="29" aria-hidden="true">
+                    <i /><b /><em>CPS</em>
+                  </span>
+                ) : null}
+                <span className="about-word" aria-hidden="true">{word}</span>{" "}
+              </Fragment>
+            ))}
+          </p>
+          <span className="about-annotation about-annotation--a" aria-hidden="true">S↔A</span>
+          <span className="about-annotation about-annotation--b" aria-hidden="true">x̂(t)</span>
+          <span className="about-annotation about-annotation--c" aria-hidden="true">∂C/∂t</span>
+          <span className="about-annotation about-annotation--d" aria-hidden="true">01—∞</span>
         </section>
 
         <section id="research" className="research" aria-labelledby="research-title">
