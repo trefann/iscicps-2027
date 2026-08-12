@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const imageSources = [
   "/images/iscicps-hero-sculpture.png",
+  "/images/hero-researcher.png",
   "/images/srm-campus-aerial.jpg",
   "/images/srm-auditorium-1920.jpg",
   "/images/srm-research-day.webp",
@@ -97,7 +98,7 @@ function LoadingExperience({ onComplete }: { onComplete: () => void }) {
     let assetsReady = false;
     let finished = false;
     const startedAt = performance.now();
-    const minimumDuration = 3100;
+    const minimumDuration = 4200;
 
     Promise.all(
       imageSources.map(
@@ -145,8 +146,22 @@ function LoadingExperience({ onComplete }: { onComplete: () => void }) {
       aria-label={`Loading ISCICPS experience, ${progress} percent`}
     >
       <div className="loader-stage" aria-hidden="true">
-        <div className="loader-word"><span>ISCICPS</span></div>
-        <img className="loader-sculpture" src="/images/iscicps-hero-sculpture.png" alt="" />
+        <div className="loader-intro">
+          <span className="loader-note loader-note-a">CI / 27</span>
+          <span className="loader-note loader-note-b">Δt</span>
+          <span className="loader-note loader-note-c">Nf3</span>
+          <img className="loader-intro-person" src="/images/hero-researcher.png" alt="" />
+        </div>
+        <div className="loader-assembly">
+          <div className="loader-kicker">International Symposium</div>
+          <div className="loader-word">
+            <span>INTELLIGENT</span>
+            <span>CYBER-PHYSICAL</span>
+            <span>SYSTEMS</span>
+          </div>
+          <img className="loader-sculpture" src="/images/iscicps-hero-sculpture.png" alt="" />
+          <img className="loader-hero-person" src="/images/hero-researcher.png" alt="" />
+        </div>
         <div className="loader-status">
           <span>ISCICPS_BOOT</span>
           <strong>{String(progress).padStart(2, "0")}%</strong>
@@ -462,9 +477,9 @@ export function SymposiumExperience() {
           .from(".global-host", { opacity: 0, transform: "translate(-50%, -12px)", duration: 0.5 }, 0.02)
           .fromTo(".hero-visual", { opacity: 0, transform: "scale(1.015)" }, { opacity: 1, transform: "scale(1)", duration: 0.72, ease: "power3.out" }, 0.03)
           .from(".hero-kicker", { opacity: 0, transform: "translateY(12px)", duration: 0.4 }, 0.12)
-          .from(".hero-expanded", { opacity: 0, transform: "translateY(12px)", duration: 0.5 }, 0.22)
-          .from(".hero-for", { opacity: 0, transform: "translateY(8px)", duration: 0.42 }, 0.3)
-          .from(".hero-annotation", { opacity: 0, stagger: 0.045, duration: 0.3 }, 0.36)
+          .from(".hero-line", { opacity: 0, transform: "translateY(12%)", stagger: 0.055, duration: 0.55 }, 0.2)
+          .from(".hero-researcher", { opacity: 0, transform: "translateY(8px)", duration: 0.42 }, 0.32)
+          .from(".hero-annotation", { opacity: 0, stagger: 0.045, duration: 0.3 }, 0.38)
           .from(".hero-meta span", { opacity: 0, transform: "translateY(8px)", stagger: 0.045, duration: 0.32 }, 0.42);
 
         gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
@@ -510,9 +525,10 @@ export function SymposiumExperience() {
           .to(".hero-visual", { transform: "scale(1.035) translateY(2%)", ease: "none" }, 0)
           .fromTo(".hero-image img", { transform: "scale(1.01) translateY(-1%)" }, { transform: "scale(1.075) translateY(3%) rotate(0.5deg)", ease: "none" }, 0)
           .to(".hero-title", { scale: 0.97, ease: "none" }, 0)
-          .to(".hero-abbreviation", { transform: "translateX(1.6%)", opacity: 0.5, ease: "none" }, 0)
-          .to(".hero-expanded", { transform: "translateY(-30%)", ease: "none" }, 0)
-          .to(".hero-for", { transform: "translateY(120%)", opacity: 0, ease: "none" }, 0)
+          .to(".hero-line-one", { transform: "translateX(-1.6%)", opacity: 0.46, ease: "none" }, 0)
+          .to(".hero-line-two", { transform: "translateX(1.2%)", ease: "none" }, 0)
+          .to(".hero-line-three", { transform: "translateY(18%)", opacity: 0.62, ease: "none" }, 0)
+          .to(".hero-researcher", { transform: "translateY(-12%)", ease: "none" }, 0)
           .to(".hero-annotation", { opacity: 0, stagger: 0.03, ease: "none" }, 0);
 
         gsap.fromTo(
@@ -622,9 +638,9 @@ export function SymposiumExperience() {
       <div className="content-shell">
         <section id="home" className="hero" aria-labelledby="hero-heading">
           <div id="main-content" className="hero-stage">
-            <div className="hero-kicker">Intelligence beyond the screen</div>
+            <div className="hero-kicker">International Symposium</div>
             <div className="hero-meta">
-              <span>IEEE INTERNATIONAL SYMPOSIUM</span>
+              <span>IEEE ISCICPS &apos;27</span>
               <span>21—22 APRIL 2027</span>
               <span>SRMIST · CHENNAI</span>
             </div>
@@ -635,11 +651,12 @@ export function SymposiumExperience() {
               <span className="hero-annotation hero-annotation-a" aria-hidden="true">CI / 27</span>
               <span className="hero-annotation hero-annotation-b" aria-hidden="true">SENSE → THINK → ACT</span>
               <span className="hero-annotation hero-annotation-c" aria-hidden="true">Δt &lt; 10ms</span>
+              <img className="hero-researcher" src="/images/hero-researcher.png" alt="A hand-drawn researcher working on a laptop" decoding="async" />
             </div>
             <h1 id="hero-heading" className="hero-title">
-              <span className="hero-abbreviation" aria-hidden="true">ISCICPS</span>
-              <span className="hero-expanded">COMPUTATIONAL INTELLIGENCE</span>
-              <span className="hero-for">FOR CYBER-PHYSICAL SYSTEMS</span>
+              <span className="hero-line hero-line-one">INTELLIGENT</span>
+              <span className="hero-line hero-line-two">CYBER-PHYSICAL</span>
+              <span className="hero-line hero-line-three">SYSTEMS</span>
             </h1>
             <a className="hero-cta" href="#about" data-cursor="SCROLL ↓">
               <span>Discover the symposium</span><i aria-hidden="true">↓</i>

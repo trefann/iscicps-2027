@@ -32,6 +32,7 @@ test("server-renders the refined editorial ISCICPS experience", async () => {
   assert.match(html, /<title>ISCICPS &#x27;27 .* Computational Intelligence for Cyber-Physical Systems<\/title>/i);
   assert.match(html, /COMPUTATIONAL/);
   assert.match(html, /INTELLIGENCE/);
+  assert.match(html, /INTELLIGENT[\s\S]*CYBER-PHYSICAL[\s\S]*SYSTEMS/);
   assert.match(html, /CYBER-PHYSICAL/);
   assert.match(html, /21.*22/);
   assert.match(html, /APRIL 2027/);
@@ -85,7 +86,8 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /className="hero-visual"/);
   assert.match(experience, /className="hero-image hero-image-base"/);
   assert.match(experience, /className="hero-annotation/);
-  assert.match(experience, /className="hero-abbreviation"/);
+  assert.match(experience, /className="hero-line hero-line-one"/);
+  assert.match(experience, /className="hero-researcher"/);
   assert.match(experience, /iscicps-hero-sculpture\.png/);
   assert.match(experience, /className="global-host"/);
   assert.match(experience, /srm-seal\.png/);
@@ -116,7 +118,8 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(css, /--cyan: #4cc9f0/);
   assert.doesNotMatch(css, /--dark-blue|mobile-menu/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
-  assert.match(css, /@keyframes loader-write/);
+  assert.match(css, /@keyframes loader-person-intro/);
+  assert.match(css, /@keyframes loader-title-in/);
   assert.match(css, /loader-sculpture-in/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media \(max-width: 800px\)/);
@@ -134,6 +137,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   await access(new URL("../public/images/srm-auditorium-1920.jpg", import.meta.url));
   await access(new URL("../public/images/srm-research-day.webp", import.meta.url));
   await access(new URL("../public/images/iscicps-hero-sculpture.png", import.meta.url));
+  await access(new URL("../public/images/hero-researcher.png", import.meta.url));
   await access(new URL("../public/images/tracks/edge-ai.webp", import.meta.url));
   await access(new URL("../public/images/tracks/autonomous-systems.webp", import.meta.url));
   await access(new URL("../public/images/tracks/smart-energy.webp", import.meta.url));
