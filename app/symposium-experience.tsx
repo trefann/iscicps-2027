@@ -15,56 +15,66 @@ const researchTracks = [
   {
     number: "01",
     title: "Edge AI & Embedded Intelligence",
+    caption: "Intelligence at the edge — fast, local, precise.",
+    layout: "left",
     preview: "Computational intelligence operating close to the physical processes it observes.",
     introduction: "This track examines how computational intelligence can operate close to the physical processes it observes. It connects hardware-aware neural acceleration with on-device learning so embedded platforms can act without depending on distant cloud infrastructure.",
     areas: ["Hardware-aware neural acceleration", "On-device learning", "IoT and microcontrollers", "Embedded intelligence", "Low-latency decisions", "Edge computing"],
     why: "Local inference reduces communication delay and supports responsive behavior where timing, energy and hardware limits matter. The focus is not AI in isolation, but intelligence designed for the device that must execute it.",
     applications: ["Embedded vision", "Industrial monitoring", "Environmental sensing", "Wearable systems"],
-    image: "/images/tracks/edge-ai.webp",
+    image: "/images/tracks-sketch/edge-ai.png",
     position: "center center",
   },
   {
     number: "02",
     title: "Autonomous Systems & Robotics",
+    caption: "Precision, decision and action in the real world.",
+    layout: "right",
     preview: "Machines that perceive, decide and act inside changing physical environments.",
     introduction: "Autonomous physical systems must perceive their environment, locate themselves, decide under uncertainty and coordinate action in real time. This track brings those layers together across self-driving vehicles, drones, mobile robots and multi-agent systems.",
     areas: ["Real-time perception", "Localization and SLAM", "Decision and control", "Mobile robotics", "Multi-agent coordination", "Swarm intelligence"],
     why: "Reliable autonomy depends on the continuous connection between sensing and physical action. Research here studies how robots remain adaptive, coordinated and aware while operating beyond tightly controlled conditions.",
     applications: ["Self-driving vehicles", "Aerial drones", "Mobile inspection", "Cooperative robot teams"],
-    image: "/images/tracks/autonomous-systems.webp",
+    image: "/images/tracks-sketch/autonomous-systems.png",
     position: "center center",
   },
   {
     number: "03",
     title: "Smart Energy & Industrial Infrastructure",
+    caption: "Powering sustainable, intelligent systems.",
+    layout: "left",
     preview: "Intelligent control for energy systems, industrial assets and critical infrastructure.",
     introduction: "This track focuses on computational intelligence within energy and industrial systems. Intelligent control, predictive maintenance and resource optimization connect sensing and automation to the operation of smart grids, microgrids and manufacturing environments.",
     areas: ["Smart-grid control", "Microgrids", "Predictive maintenance", "Industry 4.0", "Resource optimization", "Industrial automation"],
     why: "Infrastructure becomes more efficient when it can anticipate demand, identify degradation and adjust operations before failure. The research links energy intelligence with the realities of large physical assets and industrial processes.",
     applications: ["Energy management", "Manufacturing systems", "Equipment health", "Demand-aware control"],
-    image: "/images/tracks/smart-energy.webp",
+    image: "/images/tracks-sketch/smart-energy.png",
     position: "center center",
   },
   {
     number: "04",
     title: "Security, Privacy & Resilience in CPS",
+    caption: "Secure, resilient and trustworthy by design.",
+    layout: "right",
     preview: "Protection for connected systems where digital events can create physical consequences.",
     introduction: "Cyber-physical security protects systems in which a digital compromise can produce a physical consequence. The track spans threat detection, zero-trust IoT, physical-layer security and adversarial defense alongside fault-tolerant control.",
     areas: ["Threat detection", "Zero-trust architectures", "IoT security", "Physical-layer security", "Fault-tolerant control", "Adversarial defense", "Safety-critical AI"],
     why: "Security cannot be separated from control, safety or continuity of operation. Resilient CPS must detect hostile or faulty conditions while preserving safe physical behavior under stress.",
     applications: ["Industrial control", "Connected infrastructure", "Safety-critical autonomy", "Secure sensing"],
-    image: "/images/tracks/security-resilience.webp",
+    image: "/images/tracks-sketch/security-resilience.png",
     position: "center center",
   },
   {
     number: "05",
     title: "Trustworthy & Explainable AI for Physical Systems",
+    caption: "Transparent intelligence for critical systems.",
+    layout: "left",
     preview: "Learning-enabled systems that remain understandable, verifiable and safe to supervise.",
     introduction: "This track studies how learning-enabled physical systems can remain understandable, verifiable and constrained by safety requirements. It connects explainable AI and human oversight with machine learning that acts inside autonomous infrastructure.",
     areas: ["Verifiable machine learning", "Safety-constrained ML", "Explainable AI", "Human-in-the-loop control", "Ethical considerations", "Autonomous infrastructure"],
     why: "When intelligent systems influence the physical world, performance alone is not enough. Designers and operators also need evidence, transparency and meaningful ways to supervise consequential decisions.",
     applications: ["Assisted control", "Explainable autonomy", "Safety assurance", "Operator decision support"],
-    image: "/images/tracks/trustworthy-ai.webp",
+    image: "/images/tracks-sketch/trustworthy-ai.png",
     position: "center center",
   },
 ];
@@ -138,11 +148,16 @@ export function SymposiumExperience() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [activeTrack, setActiveTrack] = useState(0);
-  const [revealedTrack, setRevealedTrack] = useState<number | null>(null);
   const [selectedTrack, setSelectedTrack] = useState<number | null>(null);
   const [activeMilestone, setActiveMilestone] = useState(0);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
   const footerRef = useRef<HTMLElement>(null);
+  const researchRef = useRef<HTMLElement>(null);
+  const researchStageRef = useRef<HTMLDivElement>(null);
+  const researchCanvasRef = useRef<HTMLCanvasElement>(null);
+  const origamiRef = useRef<HTMLDivElement>(null);
+  const researchScrollRef = useRef<{ start: number; end: number } | null>(null);
   const trackDialogRef = useRef<HTMLDivElement>(null);
   const menuLayerRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -158,6 +173,25 @@ export function SymposiumExperience() {
   }, []);
   const navSection = navItems.some(([id]) => id === activeSection) ? activeSection : "home";
   const navSectionIndex = navItems.findIndex(([id]) => id === navSection);
+  const navigateToTrack = useCallback((index: number) => {
+    const nextIndex = Math.max(0, Math.min(researchTracks.length - 1, index));
+    const trigger = researchScrollRef.current;
+    if (trigger) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const progress = nextIndex / (researchTracks.length - 1);
+      window.scrollTo({ top: trigger.start + (trigger.end - trigger.start) * progress, behavior: reduce ? "auto" : "smooth" });
+      return;
+    }
+    document.querySelector<HTMLElement>(`[data-track-scene="${nextIndex}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setPrefersReducedMotion(query.matches);
+    updatePreference();
+    query.addEventListener("change", updatePreference);
+    return () => query.removeEventListener("change", updatePreference);
+  }, []);
 
   useEffect(() => {
     if (selectedTrack === null) return;
@@ -372,6 +406,7 @@ export function SymposiumExperience() {
     let cancelled = false;
     let manifestoWords: HTMLElement[] = [];
     let manifestoDoodles: HTMLElement[] = [];
+    let clearResearchJourney = () => {};
 
     Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([gsapModule, scrollModule]) => {
       if (cancelled) return;
@@ -404,15 +439,6 @@ export function SymposiumExperience() {
               scrollTrigger: { trigger: element, start: "top 86%", once: true },
             },
           );
-        });
-
-        gsap.from(".track-card", {
-          opacity: 0,
-          transform: "translateY(44px)",
-          stagger: 0.09,
-          duration: 0.78,
-          ease: "power3.out",
-          scrollTrigger: { trigger: ".track-deck", start: "top 84%", once: true },
         });
 
         gsap.fromTo(
@@ -454,6 +480,154 @@ export function SymposiumExperience() {
           });
         }
 
+        const researchSection = researchRef.current;
+        const researchStage = researchStageRef.current;
+        const researchCanvas = researchCanvasRef.current;
+        const origami = origamiRef.current;
+        const trackScenes = gsap.utils.toArray<HTMLElement>(".track-scene");
+        if (researchSection && researchStage && researchCanvas && origami && trackScenes.length === researchTracks.length) {
+          const context2d = researchCanvas.getContext("2d");
+          const sheet = origami.querySelector<HTMLElement>(".origami-sheet");
+          const leftWing = origami.querySelector<HTMLElement>(".origami-wing--left");
+          const rightWing = origami.querySelector<HTMLElement>(".origami-wing--right");
+          const spine = origami.querySelector<HTMLElement>(".origami-spine");
+          const clamp = (value: number) => Math.min(1, Math.max(0, value));
+          const smoothstep = (start: number, end: number, value: number) => {
+            const unit = clamp((value - start) / Math.max(0.0001, end - start));
+            return unit * unit * (3 - 2 * unit);
+          };
+          const desktopRoutes = [
+            [[0.22, 0.63], [0.48, 0.2], [0.79, 0.43]],
+            [[0.78, 0.6], [0.54, 0.84], [0.21, 0.47]],
+            [[0.22, 0.64], [0.52, 0.17], [0.79, 0.4]],
+            [[0.79, 0.6], [0.5, 0.23], [0.2, 0.43]],
+          ];
+          const mobileRoutes = [
+            [[0.18, 0.68], [0.6, 0.25], [0.82, 0.48]],
+            [[0.82, 0.68], [0.48, 0.84], [0.18, 0.47]],
+            [[0.18, 0.68], [0.56, 0.23], [0.82, 0.48]],
+            [[0.82, 0.68], [0.48, 0.25], [0.18, 0.48]],
+          ];
+
+          const renderJourney = (progress: number) => {
+            const transitionCount = researchTracks.length - 1;
+            const rawProgress = clamp(progress) * transitionCount;
+            const segment = Math.min(transitionCount - 1, Math.floor(rawProgress));
+            const localProgress = progress >= 1 ? 1 : rawProgress - segment;
+            const exit = smoothstep(0, 0.15, localProgress);
+            const enter = smoothstep(0.86, 1, localProgress);
+            const nextTrack = Math.min(researchTracks.length - 1, segment + 1);
+            const activeIndex = localProgress >= 0.86 ? nextTrack : segment;
+            setActiveTrack((current) => current === activeIndex ? current : activeIndex);
+
+            trackScenes.forEach((scene, index) => {
+              let opacity = 0;
+              let clip = "inset(50% 50% 50% 50%)";
+              let scale = 0.985;
+              if (index === segment) {
+                opacity = 1 - exit;
+                clip = `inset(0 ${exit * 48}% 0 ${exit * 48}%)`;
+                scale = 1 - exit * 0.018;
+              } else if (index === nextTrack) {
+                opacity = enter;
+                clip = `inset(${(1 - enter) * 50}% ${(1 - enter) * 50}% ${(1 - enter) * 50}% ${(1 - enter) * 50}%)`;
+                scale = 0.985 + enter * 0.015;
+              }
+              gsap.set(scene, { opacity, clipPath: clip, scale, pointerEvents: opacity > 0.72 && index === activeIndex ? "auto" : "none" });
+              scene.inert = !(opacity > 0.72 && index === activeIndex);
+            });
+
+            if (!context2d) return;
+            const bounds = researchStage.getBoundingClientRect();
+            const density = Math.min(2, window.devicePixelRatio || 1);
+            const pixelWidth = Math.max(1, Math.round(bounds.width * density));
+            const pixelHeight = Math.max(1, Math.round(bounds.height * density));
+            if (researchCanvas.width !== pixelWidth || researchCanvas.height !== pixelHeight) {
+              researchCanvas.width = pixelWidth;
+              researchCanvas.height = pixelHeight;
+            }
+            researchCanvas.style.width = `${bounds.width}px`;
+            researchCanvas.style.height = `${bounds.height}px`;
+            context2d.setTransform(density, 0, 0, density, 0, 0);
+            context2d.clearRect(0, 0, bounds.width, bounds.height);
+
+            const routes = bounds.width <= 800 ? mobileRoutes : desktopRoutes;
+            const route = routes[segment];
+            const start = { x: route[0][0] * bounds.width, y: route[0][1] * bounds.height };
+            const control = { x: route[1][0] * bounds.width, y: route[1][1] * bounds.height };
+            const end = { x: route[2][0] * bounds.width, y: route[2][1] * bounds.height };
+            const routeProgress = smoothstep(0.25, 0.72, localProgress);
+            const routeOpacity = smoothstep(0.2, 0.31, localProgress) * (1 - smoothstep(0.75, 0.88, localProgress));
+            context2d.save();
+            context2d.globalAlpha = routeOpacity;
+            context2d.strokeStyle = "#0d4fa7";
+            context2d.lineWidth = 1.35;
+            context2d.setLineDash([8, 10]);
+            context2d.lineDashOffset = -routeProgress * 28;
+            context2d.beginPath();
+            for (let step = 0; step <= 72; step += 1) {
+              const pointProgress = (step / 72) * routeProgress;
+              const inverse = 1 - pointProgress;
+              const x = inverse * inverse * start.x + 2 * inverse * pointProgress * control.x + pointProgress * pointProgress * end.x;
+              const y = inverse * inverse * start.y + 2 * inverse * pointProgress * control.y + pointProgress * pointProgress * end.y;
+              if (step === 0) context2d.moveTo(x, y); else context2d.lineTo(x, y);
+            }
+            context2d.stroke();
+            context2d.restore();
+
+            const fold = smoothstep(0.15, 0.35, localProgress);
+            const flight = smoothstep(0.35, 0.72, localProgress);
+            const inverseFlight = 1 - flight;
+            const x = inverseFlight * inverseFlight * start.x + 2 * inverseFlight * flight * control.x + flight * flight * end.x;
+            const y = inverseFlight * inverseFlight * start.y + 2 * inverseFlight * flight * control.y + flight * flight * end.y;
+            const dx = 2 * inverseFlight * (control.x - start.x) + 2 * flight * (end.x - control.x);
+            const dy = 2 * inverseFlight * (control.y - start.y) + 2 * flight * (end.y - control.y);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const paperOpacity = smoothstep(0.14, 0.2, localProgress) * (1 - smoothstep(0.74, 0.86, localProgress));
+            origami.style.opacity = String(paperOpacity);
+            origami.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${angle}deg) scale(${0.78 + fold * 0.22})`;
+            if (sheet) {
+              sheet.style.opacity = String(1 - fold);
+              sheet.style.transform = `rotate(45deg) scale(${1 - fold * 0.28})`;
+            }
+            if (leftWing) {
+              leftWing.style.opacity = String(fold);
+              leftWing.style.transform = `rotateY(${(1 - fold) * 84}deg) rotateZ(-5deg)`;
+            }
+            if (rightWing) {
+              rightWing.style.opacity = String(fold);
+              rightWing.style.transform = `rotateY(${(1 - fold) * -84}deg) rotateZ(5deg)`;
+            }
+            if (spine) spine.style.opacity = String(fold);
+          };
+
+          renderJourney(0);
+          const researchTrigger = ScrollTrigger.create({
+            trigger: researchSection,
+            pin: researchStage,
+            pinType: "transform",
+            start: "top top",
+            end: () => `+=${window.innerHeight * (researchTracks.length - 1)}`,
+            scrub: 0.15,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: ({ progress }) => renderJourney(progress),
+            onRefresh: ({ progress }) => renderJourney(progress),
+          });
+          researchScrollRef.current = researchTrigger;
+          clearResearchJourney = () => {
+            researchScrollRef.current = null;
+            researchTrigger.kill();
+            context2d.clearRect(0, 0, researchCanvas.width, researchCanvas.height);
+            trackScenes.forEach((scene) => {
+              scene.inert = false;
+              gsap.set(scene, { clearProps: "opacity,clipPath,scale,pointerEvents" });
+            });
+            origami.removeAttribute("style");
+            [sheet, leftWing, rightWing, spine].forEach((part) => part?.removeAttribute("style"));
+          };
+        }
+
         gsap.utils.toArray<HTMLImageElement>(".venue-image img").forEach((image) => {
           gsap.fromTo(
             image,
@@ -482,6 +656,7 @@ export function SymposiumExperience() {
 
     return () => {
       cancelled = true;
+      clearResearchJourney();
       context?.revert();
       manifestoWords.forEach((word) => word.style.removeProperty("color"));
       manifestoDoodles.forEach((doodle) => doodle.style.removeProperty("opacity"));
@@ -627,52 +802,62 @@ export function SymposiumExperience() {
           <span className="about-annotation about-annotation--d" aria-hidden="true">01—∞</span>
         </section>
 
-        <section id="research" className="research" aria-labelledby="research-title">
-          <div className="section-note" data-reveal><span>02</span><span>RESEARCH</span></div>
-          <h2 id="research-title" data-reveal>RESEARCH<br /><span>FIELDS</span></h2>
-          <div className="track-signal" style={{ "--track-index": activeTrack } as React.CSSProperties} aria-hidden="true"><i /></div>
-          <div className="track-deck" aria-label="Five symposium research tracks">
-            {researchTracks.map((track, index) => (
-              <article
-                className={`track-card ${activeTrack === index ? "is-active" : ""} ${revealedTrack === index ? "is-revealed" : ""}`}
-                data-index={index}
-                data-cursor="EXPLORE"
-                key={track.number}
-                onPointerEnter={() => setActiveTrack(index)}
-                onFocus={() => setActiveTrack(index)}
-                onClick={() => {
-                  setActiveTrack(index);
-                  setRevealedTrack(index);
-                }}
-                tabIndex={0}
-              >
-                <img className="track-card-image" src={track.image} alt="" style={{ objectPosition: track.position }} loading="lazy" />
-                <div className="track-card-shade" aria-hidden="true" />
-                <div className="track-card-head">
-                  <span>/{track.number}</span><span>RESEARCH TRACK</span>
-                </div>
-                <div className="track-card-content">
-                  <h3>{track.title}</h3>
-                  <div className="track-card-reveal">
-                    <p>{track.preview}</p>
-                    <ul aria-label="Featured research areas">
-                      {track.areas.slice(0, 3).map((area) => <li key={area}>{area}</li>)}
-                    </ul>
+        <section ref={researchRef} id="research" className="research" aria-labelledby="research-title">
+          <div ref={researchStageRef} className="research-stage">
+            <div className="research-heading">
+              <div className="section-note research-note"><span>02</span><span>RESEARCH</span></div>
+              <h2 id="research-title">FIVE RESEARCH TRACKS</h2>
+              <span className="research-count" aria-live="polite" aria-atomic="true">
+                {String(activeTrack + 1).padStart(2, "0")} <i>/</i> 05
+              </span>
+            </div>
+            <p className="research-whisper" aria-hidden="true">Five domains.<br />One intelligent future.</p>
+            <span className="research-formula research-formula--a" aria-hidden="true">x̂ → u</span>
+            <span className="research-formula research-formula--b" aria-hidden="true">∑ / CPS</span>
+            <span className="research-compass" aria-hidden="true"><i>N</i><b /><i>S</i></span>
+            <canvas ref={researchCanvasRef} className="research-route" aria-hidden="true" />
+            <div ref={origamiRef} className="origami-flight" aria-hidden="true">
+              <span className="origami-sheet" />
+              <span className="origami-wing origami-wing--left" />
+              <span className="origami-wing origami-wing--right" />
+              <span className="origami-spine" />
+            </div>
+            <div className="track-scenes" aria-label="Five symposium research tracks">
+              {researchTracks.map((track, index) => (
+                <article
+                  className={`track-scene track-scene--${track.layout}`}
+                  data-track-scene={index}
+                  aria-hidden={!prefersReducedMotion && activeTrack !== index}
+                  key={track.number}
+                >
+                  <div className="track-scene-copy">
+                    <span className="track-number">{track.number}</span>
+                    <p className="track-label">RESEARCH TRACK / {track.number}</p>
+                    <h3>{track.title}</h3>
+                    <p className="track-caption">{track.caption}</p>
+                    <p className="track-preview">{track.preview}</p>
                     <button
                       className="track-explore"
                       type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setSelectedTrack(index);
-                      }}
+                      tabIndex={prefersReducedMotion || activeTrack === index ? 0 : -1}
+                      onClick={() => setSelectedTrack(index)}
+                      data-cursor="EXPLORE ↗"
                     >
                       EXPLORE TRACK <span aria-hidden="true">↗</span>
                     </button>
                   </div>
-                </div>
-                <span className="track-card-count">{String(index + 1).padStart(2, "0")} / 05</span>
-              </article>
-            ))}
+                  <figure className="track-scene-art">
+                    <img src={track.image} alt={`${track.title} technical ink illustration`} loading="lazy" />
+                    <figcaption>{track.areas.slice(0, 3).join(" · ")}</figcaption>
+                  </figure>
+                </article>
+              ))}
+            </div>
+            <div className="research-controls" aria-label="Research track navigation">
+              <button type="button" onClick={() => navigateToTrack(activeTrack - 1)} disabled={activeTrack === 0} aria-label="Previous research track">←</button>
+              <span aria-hidden="true">SCROLL TO NAVIGATE</span>
+              <button type="button" onClick={() => navigateToTrack(activeTrack + 1)} disabled={activeTrack === researchTracks.length - 1} aria-label="Next research track">→</button>
+            </div>
           </div>
         </section>
 
