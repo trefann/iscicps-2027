@@ -35,7 +35,7 @@ test("server-renders the refined editorial ISCICPS experience", async () => {
   assert.match(html, /INTELLIGENT[\s\S]*CYBER-PHYSICAL[\s\S]*SYSTEMS/);
   assert.match(html, /CYBER-PHYSICAL/);
   assert.match(html, /21.*22/);
-  assert.match(html, /APRIL 2027/);
+  assert.match(html, /April 2027/i);
   assert.match(html, /INTELLIGENCE[\s\S]*MEETS[\s\S]*PHYSICAL[\s\S]*SYSTEMS/);
   assert.match(html, /THE PHYSICAL[\s\S]*WORLD/);
   assert.match(html, /BECOMES[\s\S]*COMPUTATIONAL/);
@@ -73,10 +73,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(experience, /className=\{`loader/);
-  assert.match(experience, /ISCICPS_BOOT/);
-  assert.match(experience, /className="loader-sculpture"/);
-  assert.match(experience, /className="loader-word"/);
+  assert.doesNotMatch(experience, /LoadingExperience|ISCICPS_BOOT|className=\{`loader/);
   assert.match(experience, /className="custom-cursor"/);
   assert.match(experience, /className=\{`nav-control/);
   assert.match(experience, /className="nav-layer"/);
@@ -88,6 +85,9 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /className="hero-annotation/);
   assert.match(experience, /className="hero-line hero-line-one"/);
   assert.match(experience, /className="hero-researcher"/);
+  assert.match(experience, /className="hero-researcher-hands"/);
+  assert.match(experience, /className="typing-signal"/);
+  assert.match(experience, /className="hero-primary-nav"/);
   assert.match(experience, /iscicps-hero-sculpture\.png/);
   assert.match(experience, /className="global-host"/);
   assert.match(experience, /srm-seal\.png/);
@@ -118,9 +118,10 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(css, /--cyan: #4cc9f0/);
   assert.doesNotMatch(css, /--dark-blue|mobile-menu/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
-  assert.match(css, /@keyframes loader-person-intro/);
-  assert.match(css, /@keyframes loader-title-in/);
-  assert.match(css, /loader-sculpture-in/);
+  assert.doesNotMatch(css, /\.loader|@keyframes loader-/);
+  assert.match(css, /@keyframes researcher-type/);
+  assert.match(css, /@keyframes researcher-breathe/);
+  assert.match(css, /@keyframes typing-dot/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media \(max-width: 800px\)/);
   assert.match(css, /@media \(max-width: 540px\)/);

@@ -2,19 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const imageSources = [
-  "/images/iscicps-hero-sculpture.png",
-  "/images/hero-researcher.png",
-  "/images/srm-campus-aerial.jpg",
-  "/images/srm-auditorium-1920.jpg",
-  "/images/srm-research-day.webp",
-  "/images/tracks/edge-ai.webp",
-  "/images/tracks/autonomous-systems.webp",
-  "/images/tracks/smart-energy.webp",
-  "/images/tracks/security-resilience.webp",
-  "/images/tracks/trustworthy-ai.webp",
-];
-
 const navItems = [
   ["home", "Home"],
   ["about", "About"],
@@ -89,89 +76,6 @@ const milestones = [
   { day: "21—22", month: "APR", year: "2027", iso: "2027-04-21", title: "ISCICPS '27" },
 ];
 
-function LoadingExperience({ onComplete }: { onComplete: () => void }) {
-  const [progress, setProgress] = useState(0);
-  const [closing, setClosing] = useState(false);
-
-  useEffect(() => {
-    let frame = 0;
-    let assetsReady = false;
-    let finished = false;
-    const startedAt = performance.now();
-    const minimumDuration = 4200;
-
-    Promise.all(
-      imageSources.map(
-        (source) =>
-          new Promise<void>((resolve) => {
-            const image = new Image();
-            image.onload = () => resolve();
-            image.onerror = () => resolve();
-            image.src = source;
-          }),
-      ),
-    ).then(() => {
-      assetsReady = true;
-    });
-
-    const tick = (now: number) => {
-      const elapsed = now - startedAt;
-      const timed = Math.min(96, Math.floor((elapsed / minimumDuration) * 96));
-      const waiting = elapsed > minimumDuration
-        ? Math.min(99, 96 + Math.floor((1 - Math.exp(-(elapsed - minimumDuration) / 1800)) * 3))
-        : timed;
-      setProgress(waiting);
-
-      if (!finished && assetsReady && elapsed >= minimumDuration) {
-        finished = true;
-        setProgress(100);
-        window.setTimeout(() => setClosing(true), 250);
-        window.setTimeout(onComplete, 1190);
-        return;
-      }
-
-      frame = requestAnimationFrame(tick);
-    };
-
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [onComplete]);
-
-  return (
-    <div
-      className={`loader ${closing ? "is-closing" : ""}`}
-      style={{ "--load": progress } as React.CSSProperties}
-      role="status"
-      aria-live="polite"
-      aria-label={`Loading ISCICPS experience, ${progress} percent`}
-    >
-      <div className="loader-stage" aria-hidden="true">
-        <div className="loader-intro">
-          <span className="loader-note loader-note-a">CI / 27</span>
-          <span className="loader-note loader-note-b">Δt</span>
-          <span className="loader-note loader-note-c">Nf3</span>
-          <img className="loader-intro-person" src="/images/hero-researcher.png" alt="" />
-        </div>
-        <div className="loader-assembly">
-          <div className="loader-kicker">International Symposium</div>
-          <div className="loader-word">
-            <span>INTELLIGENT</span>
-            <span>CYBER-PHYSICAL</span>
-            <span>SYSTEMS</span>
-          </div>
-          <img className="loader-sculpture" src="/images/iscicps-hero-sculpture.png" alt="" />
-          <img className="loader-hero-person" src="/images/hero-researcher.png" alt="" />
-        </div>
-        <div className="loader-status">
-          <span>ISCICPS_BOOT</span>
-          <strong>{String(progress).padStart(2, "0")}%</strong>
-          <i><b /></i>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
 
@@ -227,7 +131,7 @@ function CustomCursor() {
 }
 
 export function SymposiumExperience() {
-  const [loaded, setLoaded] = useState(false);
+  const loaded = true;
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [activeTrack, setActiveTrack] = useState(0);
@@ -239,7 +143,6 @@ export function SymposiumExperience() {
   const trackDialogRef = useRef<HTMLDivElement>(null);
   const menuLayerRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const completeLoading = useCallback(() => setLoaded(true), []);
   const navigateFromMenu = useCallback((event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     event.preventDefault();
     setMenuOpen(false);
@@ -471,17 +374,6 @@ export function SymposiumExperience() {
       const ScrollTrigger = scrollModule.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
       context = gsap.context(() => {
-        const entrance = gsap.timeline({ defaults: { ease: "power4.out" } });
-        entrance
-          .from(".menu-trigger", { opacity: 0, transform: "translateY(-12px)", duration: 0.42 })
-          .from(".global-host", { opacity: 0, transform: "translate(-50%, -12px)", duration: 0.5 }, 0.02)
-          .fromTo(".hero-visual", { opacity: 0, transform: "scale(1.015)" }, { opacity: 1, transform: "scale(1)", duration: 0.72, ease: "power3.out" }, 0.03)
-          .from(".hero-kicker", { opacity: 0, transform: "translateY(12px)", duration: 0.4 }, 0.12)
-          .from(".hero-line", { opacity: 0, transform: "translateY(12%)", stagger: 0.055, duration: 0.55 }, 0.2)
-          .from(".hero-researcher", { opacity: 0, transform: "translateY(8px)", duration: 0.42 }, 0.32)
-          .from(".hero-annotation", { opacity: 0, stagger: 0.045, duration: 0.3 }, 0.38)
-          .from(".hero-meta span", { opacity: 0, transform: "translateY(8px)", stagger: 0.045, duration: 0.32 }, 0.42);
-
         gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
           gsap.fromTo(
             element,
@@ -577,13 +469,12 @@ export function SymposiumExperience() {
 
   return (
     <main ref={rootRef} className={`experience ${loaded ? "is-ready" : ""} section-${navSection}`}>
-      {!loaded && <LoadingExperience onComplete={completeLoading} />}
       <CustomCursor />
       <a className="global-host" href="https://www.srmist.edu.in/" target="_blank" rel="noreferrer" aria-label="Visit SRM Institute of Science and Technology">
         <img className="global-host-crest" src="/images/srm-seal.png" alt="SRM Institute of Science and Technology crest" />
         <span className="global-host-name" aria-hidden="true">
-          <strong>SRMIST</strong>
-          <small>Learn · Leap · Lead</small>
+          <strong>SRM</strong>
+          <small>Institute of Science &amp; Technology</small>
         </span>
       </a>
       <a className="skip-link" href="#main-content">Skip to content</a>
@@ -613,6 +504,14 @@ export function SymposiumExperience() {
         </button>
       </aside>
 
+      <nav className="hero-primary-nav" aria-label="Primary navigation">
+        {navItems.map(([id, label]) => (
+          <a key={id} href={`#${id}`} className={navSection === id ? "is-active" : ""} aria-current={navSection === id ? "page" : undefined}>
+            {label}
+          </a>
+        ))}
+      </nav>
+
       <div ref={menuLayerRef} id="navigation-layer" className="nav-layer" role="dialog" aria-modal="true" aria-label="Site navigation" aria-hidden={!menuOpen}>
         <div className="nav-layer-meta"><span>ISCICPS &apos;27</span><span>CURRENT / {String(navSectionIndex + 1).padStart(2, "0")}</span></div>
         <nav aria-label="Primary navigation">
@@ -638,29 +537,30 @@ export function SymposiumExperience() {
       <div className="content-shell">
         <section id="home" className="hero" aria-labelledby="hero-heading">
           <div id="main-content" className="hero-stage">
-            <div className="hero-kicker">International Symposium</div>
-            <div className="hero-meta">
-              <span>IEEE ISCICPS &apos;27</span>
-              <span>21—22 APRIL 2027</span>
-              <span>SRMIST · CHENNAI</span>
-            </div>
+            <div className="hero-kicker">International Symposium On</div>
             <div className="hero-visual" data-cursor="EXPLORE ↗">
               <div className="hero-image hero-image-base">
                 <img src="/images/iscicps-hero-sculpture.png" alt="A cobalt mechanical hand holding a graphite sphere encircled by a circuit ribbon" fetchPriority="high" decoding="async" />
               </div>
-              <span className="hero-annotation hero-annotation-a" aria-hidden="true">CI / 27</span>
-              <span className="hero-annotation hero-annotation-b" aria-hidden="true">SENSE → THINK → ACT</span>
+              <span className="hero-annotation hero-annotation-a" aria-hidden="true">μ4</span>
+              <span className="hero-annotation hero-annotation-b" aria-hidden="true">Nc6</span>
               <span className="hero-annotation hero-annotation-c" aria-hidden="true">Δt &lt; 10ms</span>
-              <img className="hero-researcher" src="/images/hero-researcher.png" alt="A hand-drawn researcher working on a laptop" decoding="async" />
+              <span className="hero-annotation hero-annotation-d" aria-hidden="true">NF3</span>
+              <span className="hero-annotation hero-annotation-e" aria-hidden="true">Be5</span>
+              <span className="hero-annotation hero-annotation-f" aria-hidden="true">d3</span>
+              <div className="hero-researcher" role="img" aria-label="A hand-drawn researcher continuously typing on a laptop">
+                <img className="hero-researcher-base" src="/images/hero-researcher.png" alt="" decoding="async" />
+                <img className="hero-researcher-hands" src="/images/hero-researcher.png" alt="" aria-hidden="true" decoding="async" />
+                <span className="typing-signal" aria-hidden="true"><i /><i /><i /></span>
+              </div>
             </div>
             <h1 id="hero-heading" className="hero-title">
               <span className="hero-line hero-line-one">INTELLIGENT</span>
               <span className="hero-line hero-line-two">CYBER-PHYSICAL</span>
               <span className="hero-line hero-line-three">SYSTEMS</span>
             </h1>
-            <a className="hero-cta" href="#about" data-cursor="SCROLL ↓">
-              <span>Discover the symposium</span><i aria-hidden="true">↓</i>
-            </a>
+            <span className="hero-compass" aria-hidden="true"><i>N</i><b /><i>S</i></span>
+            <span className="hero-scroll-mark" aria-hidden="true">c&nbsp;&nbsp;e&nbsp;&nbsp;s&nbsp;&nbsp;c&nbsp;&nbsp;z<br />z&nbsp;&nbsp;&nbsp;&nbsp;⌁&nbsp;&nbsp;&nbsp;&nbsp;L</span>
           </div>
         </section>
 
