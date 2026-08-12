@@ -81,7 +81,9 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /aria-label=\{menuOpen \? "Close navigation" : "Open navigation"\}/);
   assert.match(experience, /className="menu-link-frame"/);
   assert.match(experience, /className="hero-visual"/);
-  assert.match(experience, /className="hero-image hero-image-negative"/);
+  assert.match(experience, /className="hero-image hero-image-base"/);
+  assert.match(experience, /className="hero-annotation/);
+  assert.match(experience, /iscicps-hero-sculpture\.png/);
   assert.match(experience, /className="global-host"/);
   assert.match(experience, /srm-seal\.png/);
   assert.doesNotMatch(experience, /global-host-lockup/);
@@ -116,7 +118,8 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(css, /@media \(max-width: 540px\)/);
   assert.doesNotMatch(css, /#[fF][fF]4[5-9]00|#[eE][fF][4-9]4[4-9]4[4-9]/);
   assert.match(page, /SymposiumExperience/);
-  assert.match(layout, /Space_Grotesk/);
+  assert.match(layout, /Bodoni_Moda/);
+  assert.match(layout, /Manrope/);
   assert.match(layout, /og\.png/);
   assert.match(packageJson, /"gsap": "\^3\.13\.0"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
@@ -125,6 +128,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   await access(new URL("../public/images/srm-seal.png", import.meta.url));
   await access(new URL("../public/images/srm-auditorium-1920.jpg", import.meta.url));
   await access(new URL("../public/images/srm-research-day.webp", import.meta.url));
+  await access(new URL("../public/images/iscicps-hero-sculpture.png", import.meta.url));
   await access(new URL("../public/images/tracks/edge-ai.webp", import.meta.url));
   await access(new URL("../public/images/tracks/autonomous-systems.webp", import.meta.url));
   await access(new URL("../public/images/tracks/smart-energy.webp", import.meta.url));

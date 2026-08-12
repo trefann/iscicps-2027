@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Geist_Mono } from "next/font/google";
+import { Bodoni_Moda, Geist_Mono, Manrope } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const manrope = Manrope({
   variable: "--font-sans",
+  subsets: ["latin"],
+});
+
+const bodoni = Bodoni_Moda({
+  variable: "--font-display",
   subsets: ["latin"],
 });
 
@@ -47,7 +52,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${spaceGrotesk.variable} ${geistMono.variable}`}>
+      <body className={`${manrope.variable} ${bodoni.variable} ${geistMono.variable}`}>
         {children}
       </body>
     </html>

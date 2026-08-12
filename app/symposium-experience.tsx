@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const imageSources = [
+  "/images/iscicps-hero-sculpture.png",
   "/images/srm-campus-aerial.jpg",
   "/images/srm-auditorium-1920.jpg",
   "/images/srm-research-day.webp",
@@ -509,13 +510,13 @@ export function SymposiumExperience() {
           scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom bottom", scrub: 0.7 },
         });
         heroScroll
-          .to(".hero-visual", { transform: "scale(1.04) translateY(2%)", ease: "none" }, 0)
-          .fromTo(".hero-image img", { transform: "scale(1.02) translateY(-2%)" }, { transform: "scale(1.08) translateY(3%)", ease: "none" }, 0)
-          .to(".hero-title", { scale: 0.965, ease: "none" }, 0)
-          .to(".hero-computational", { transform: "translateY(-10%)", opacity: 0.42, ease: "none" }, 0)
-          .to(".hero-intelligence", { transform: "translateX(2.5%)", ease: "none" }, 0)
-          .to(".hero-cyber", { transform: "translateX(-2%)", ease: "none" }, 0)
-          .to(".hero-systems", { transform: "translateX(2%)", ease: "none" }, 0);
+          .to(".hero-visual", { transform: "scale(1.035) translateY(2%)", ease: "none" }, 0)
+          .fromTo(".hero-image img", { transform: "scale(1.01) translateY(-1%)" }, { transform: "scale(1.075) translateY(3%) rotate(0.5deg)", ease: "none" }, 0)
+          .to(".hero-title", { scale: 0.97, ease: "none" }, 0)
+          .to(".hero-computational", { transform: "translateX(-1.8%)", opacity: 0.48, ease: "none" }, 0)
+          .to(".hero-intelligence", { transform: "translateX(1.8%)", ease: "none" }, 0)
+          .to(".hero-for", { transform: "translateY(120%)", opacity: 0, ease: "none" }, 0)
+          .to(".hero-annotation", { opacity: 0, stagger: 0.03, ease: "none" }, 0);
 
         gsap.fromTo(
           ".matter-word",
@@ -562,7 +563,7 @@ export function SymposiumExperience() {
   }, [loaded]);
 
   return (
-    <main ref={rootRef} className={`experience ${loaded ? "is-ready" : ""}`}>
+    <main ref={rootRef} className={`experience ${loaded ? "is-ready" : ""} section-${navSection}`}>
       {!loaded && <LoadingExperience onComplete={completeLoading} />}
       <CustomCursor />
       <a className="global-host" href="https://www.srmist.edu.in/" target="_blank" rel="noreferrer" aria-label="Visit SRM Institute of Science and Technology">
@@ -624,28 +625,28 @@ export function SymposiumExperience() {
       <div className="content-shell">
         <section id="home" className="hero" aria-labelledby="hero-heading">
           <div id="main-content" className="hero-stage">
-            <div className="hero-kicker">ISCICPS &apos;27</div>
+            <div className="hero-kicker">Intelligence beyond the screen</div>
             <div className="hero-meta">
-              <span>INTERNATIONAL SYMPOSIUM</span>
+              <span>IEEE INTERNATIONAL SYMPOSIUM</span>
               <span>21—22 APRIL 2027</span>
               <span>SRMIST · CHENNAI</span>
             </div>
-            <div className="hero-visual" data-cursor="VIEW ↗">
+            <div className="hero-visual" data-cursor="EXPLORE ↗">
               <div className="hero-image hero-image-base">
-                <img src="/images/srm-campus-aerial.jpg" alt="Aerial view of the SRMIST Kattankulathur campus" fetchPriority="high" decoding="async" />
+                <img src="/images/iscicps-hero-sculpture.png" alt="A cobalt mechanical hand holding a graphite sphere encircled by a circuit ribbon" fetchPriority="high" decoding="async" />
               </div>
-              <div className="hero-image hero-image-negative" aria-hidden="true">
-                <img src="/images/srm-campus-aerial.jpg" alt="" decoding="async" />
-              </div>
+              <span className="hero-annotation hero-annotation-a" aria-hidden="true">CI / 27</span>
+              <span className="hero-annotation hero-annotation-b" aria-hidden="true">SENSE → THINK → ACT</span>
+              <span className="hero-annotation hero-annotation-c" aria-hidden="true">Δt &lt; 10ms</span>
             </div>
-            <div className="hero-signal" aria-hidden="true"><i /></div>
             <h1 id="hero-heading" className="hero-title">
               <span className="hero-computational">COMPUTATIONAL</span>
               <span className="hero-intelligence">INTELLIGENCE</span>
-              <span className="hero-for">FOR</span>
-              <span className="hero-cyber">CYBER-PHYSICAL</span>
-              <span className="hero-systems">SYSTEMS</span>
+              <span className="hero-for">FOR CYBER-PHYSICAL SYSTEMS</span>
             </h1>
+            <a className="hero-cta" href="#about" data-cursor="SCROLL ↓">
+              <span>Discover the symposium</span><i aria-hidden="true">↓</i>
+            </a>
           </div>
         </section>
 
