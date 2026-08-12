@@ -97,7 +97,7 @@ function LoadingExperience({ onComplete }: { onComplete: () => void }) {
     let assetsReady = false;
     let finished = false;
     const startedAt = performance.now();
-    const minimumDuration = 2750;
+    const minimumDuration = 3100;
 
     Promise.all(
       imageSources.map(
@@ -144,15 +144,14 @@ function LoadingExperience({ onComplete }: { onComplete: () => void }) {
       aria-live="polite"
       aria-label={`Loading ISCICPS experience, ${progress} percent`}
     >
-      <div className="loader-pattern" aria-hidden="true">
-        {Array.from({ length: 13 }, (_, index) => (
-          <div key={index}>ISCICPS&nbsp; ISCICPS&nbsp; ISCICPS&nbsp; ISCICPS&nbsp; ISCICPS</div>
-        ))}
-      </div>
-      <div className="loader-terminal">
-        <div className="terminal-head"><span>ISCICPS_BOOT</span><i /></div>
-        <div className="terminal-count">{String(progress).padStart(2, "0")}%</div>
-        <div className="terminal-track"><i /></div>
+      <div className="loader-stage" aria-hidden="true">
+        <div className="loader-word"><span>ISCICPS</span></div>
+        <img className="loader-sculpture" src="/images/iscicps-hero-sculpture.png" alt="" />
+        <div className="loader-status">
+          <span>ISCICPS_BOOT</span>
+          <strong>{String(progress).padStart(2, "0")}%</strong>
+          <i><b /></i>
+        </div>
       </div>
     </div>
   );
@@ -461,14 +460,12 @@ export function SymposiumExperience() {
         entrance
           .from(".menu-trigger", { opacity: 0, transform: "translateY(-12px)", duration: 0.42 })
           .from(".global-host", { opacity: 0, transform: "translate(-50%, -12px)", duration: 0.5 }, 0.02)
-          .fromTo(".hero-visual", { opacity: 0, transform: "scale(1.06)" }, { opacity: 1, transform: "scale(1)", duration: 0.92, ease: "power4.inOut" }, 0.04)
-          .from(".hero-kicker", { opacity: 0, transform: "translateY(20px)", duration: 0.45 }, 0.08)
-          .from(".hero-computational", { opacity: 0, transform: "translateY(105%)", duration: 0.78 }, 0.12)
-          .from(".hero-intelligence", { opacity: 0, transform: "translateX(-11%)", duration: 0.78 }, 0.23)
-          .from(".hero-for", { opacity: 0, duration: 0.3 }, 0.46)
-          .from(".hero-cyber", { clipPath: "inset(0 100% 0 0)", duration: 0.8 }, 0.39)
-          .from(".hero-systems", { opacity: 0, transform: "scale(0.94)", duration: 0.65 }, 0.55)
-          .from(".hero-meta span", { opacity: 0, transform: "translateY(10px)", stagger: 0.055, duration: 0.35 }, 0.58);
+          .fromTo(".hero-visual", { opacity: 0, transform: "scale(1.015)" }, { opacity: 1, transform: "scale(1)", duration: 0.72, ease: "power3.out" }, 0.03)
+          .from(".hero-kicker", { opacity: 0, transform: "translateY(12px)", duration: 0.4 }, 0.12)
+          .from(".hero-expanded", { opacity: 0, transform: "translateY(12px)", duration: 0.5 }, 0.22)
+          .from(".hero-for", { opacity: 0, transform: "translateY(8px)", duration: 0.42 }, 0.3)
+          .from(".hero-annotation", { opacity: 0, stagger: 0.045, duration: 0.3 }, 0.36)
+          .from(".hero-meta span", { opacity: 0, transform: "translateY(8px)", stagger: 0.045, duration: 0.32 }, 0.42);
 
         gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
           gsap.fromTo(
@@ -513,8 +510,8 @@ export function SymposiumExperience() {
           .to(".hero-visual", { transform: "scale(1.035) translateY(2%)", ease: "none" }, 0)
           .fromTo(".hero-image img", { transform: "scale(1.01) translateY(-1%)" }, { transform: "scale(1.075) translateY(3%) rotate(0.5deg)", ease: "none" }, 0)
           .to(".hero-title", { scale: 0.97, ease: "none" }, 0)
-          .to(".hero-computational", { transform: "translateX(-1.8%)", opacity: 0.48, ease: "none" }, 0)
-          .to(".hero-intelligence", { transform: "translateX(1.8%)", ease: "none" }, 0)
+          .to(".hero-abbreviation", { transform: "translateX(1.6%)", opacity: 0.5, ease: "none" }, 0)
+          .to(".hero-expanded", { transform: "translateY(-30%)", ease: "none" }, 0)
           .to(".hero-for", { transform: "translateY(120%)", opacity: 0, ease: "none" }, 0)
           .to(".hero-annotation", { opacity: 0, stagger: 0.03, ease: "none" }, 0);
 
@@ -640,8 +637,8 @@ export function SymposiumExperience() {
               <span className="hero-annotation hero-annotation-c" aria-hidden="true">Δt &lt; 10ms</span>
             </div>
             <h1 id="hero-heading" className="hero-title">
-              <span className="hero-computational">COMPUTATIONAL</span>
-              <span className="hero-intelligence">INTELLIGENCE</span>
+              <span className="hero-abbreviation" aria-hidden="true">ISCICPS</span>
+              <span className="hero-expanded">COMPUTATIONAL INTELLIGENCE</span>
               <span className="hero-for">FOR CYBER-PHYSICAL SYSTEMS</span>
             </h1>
             <a className="hero-cta" href="#about" data-cursor="SCROLL ↓">

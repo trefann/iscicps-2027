@@ -74,6 +74,8 @@ test("keeps motion, imagery and accessibility intentional", async () => {
 
   assert.match(experience, /className=\{`loader/);
   assert.match(experience, /ISCICPS_BOOT/);
+  assert.match(experience, /className="loader-sculpture"/);
+  assert.match(experience, /className="loader-word"/);
   assert.match(experience, /className="custom-cursor"/);
   assert.match(experience, /className=\{`nav-control/);
   assert.match(experience, /className="nav-layer"/);
@@ -83,6 +85,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /className="hero-visual"/);
   assert.match(experience, /className="hero-image hero-image-base"/);
   assert.match(experience, /className="hero-annotation/);
+  assert.match(experience, /className="hero-abbreviation"/);
   assert.match(experience, /iscicps-hero-sculpture\.png/);
   assert.match(experience, /className="global-host"/);
   assert.match(experience, /srm-seal\.png/);
@@ -113,6 +116,8 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(css, /--cyan: #4cc9f0/);
   assert.doesNotMatch(css, /--dark-blue|mobile-menu/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(css, /@keyframes loader-write/);
+  assert.match(css, /loader-sculpture-in/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media \(max-width: 800px\)/);
   assert.match(css, /@media \(max-width: 540px\)/);
