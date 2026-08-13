@@ -994,7 +994,7 @@ export function SymposiumExperience() {
         </section>
 
         <section id="register" className="register" aria-labelledby="register-title">
-          <div className="participate-meta"><span>05 / 05</span><span>ISCICPS 2027 · PARTICIPATION DESK</span></div>
+          <div className="participate-meta"><span>ISCICPS 2027 · PARTICIPATION DESK</span></div>
 
           <header className="participate-heading">
             <h2 id="register-title">PARTICIPATE</h2>
@@ -1024,12 +1024,17 @@ export function SymposiumExperience() {
                   data-cursor="OPEN ↗"
                 >
                   <span className="participation-card-tape" aria-hidden="true" />
-                  <div className="participation-card-top"><b>{path.number}</b><span>{path.role}</span></div>
-                  <span className="participation-symbol" aria-hidden="true">{path.symbol}</span>
-                  <h3>{path.title}</h3>
-                  <p>{path.copy}</p>
-                  <em>{path.note}</em>
-                  <strong><span aria-hidden="true">→</span> {path.action}</strong>
+                  <div className="participation-card-summary">
+                    <div className="participation-card-top"><b>{path.number}</b><span>{path.role}</span></div>
+                    <h3>{path.title}</h3>
+                    <span aria-hidden="true">{activeParticipation === index ? "−" : "+"}</span>
+                  </div>
+                  <div className="participation-card-details">
+                    <span className="participation-symbol" aria-hidden="true">{path.symbol}</span>
+                    <p>{path.copy}</p>
+                    <em>{path.note}</em>
+                    <strong><span aria-hidden="true">→</span> {path.action}</strong>
+                  </div>
                 </a>
               ))}
             </div>
