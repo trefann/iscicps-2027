@@ -9,7 +9,7 @@ const navItems = [
   ["research", "Tracks"],
   ["timeline", "Timeline"],
   ["venue", "Venue"],
-  ["register", "Contact"],
+  ["register", "Participate"],
 ] as const;
 
 const researchTracks = [
@@ -83,6 +83,45 @@ const researchTracks = [
 const aboutManifesto = "Cyber-physical systems begin when computation leaves the screen and enters the world, sensing movement, interpreting uncertainty, and turning intelligence into physical action. Yet meaningful progress demands more than speed: it requires machines that remain safe, resilient, explainable, and worthy of human trust. ISCICPS brings researchers together to shape that future.";
 const aboutWords = aboutManifesto.split(" ");
 
+const participationPaths = [
+  {
+    number: "01",
+    role: "PARTICIPANT",
+    title: "ATTEND",
+    symbol: "◎",
+    copy: "Join the symposium, exchange ideas, and expand your international research network.",
+    note: "Bring a question. Leave with a network.",
+    action: "REGISTER",
+    href: "https://cmt3.research.microsoft.com/",
+    field: "DELEGATE / ATTENDEE",
+    affiliation: "ACADEMIA · INDUSTRY",
+  },
+  {
+    number: "02",
+    role: "RESEARCHER",
+    title: "PRESENT",
+    symbol: "▤",
+    copy: "Submit original research and share your breakthroughs with a focused technical community.",
+    note: "Put your work into the conversation.",
+    action: "CALL FOR PAPERS",
+    href: "https://cmt3.research.microsoft.com/",
+    field: "AUTHOR / PRESENTER",
+    affiliation: "RESEARCH INSTITUTION",
+  },
+  {
+    number: "03",
+    role: "INDUSTRY",
+    title: "COLLABORATE",
+    symbol: "⌂",
+    copy: "Partner with innovators, connect research to practice, and build the future together.",
+    note: "Let’s build what comes next.",
+    action: "PARTNER WITH US",
+    href: "mailto:ieeescicps@gmail.com?subject=ISCICPS%202027%20Partnership",
+    field: "PARTNER / EXHIBITOR",
+    affiliation: "INDUSTRY · R&D",
+  },
+] as const;
+
 function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
 
@@ -143,6 +182,7 @@ export function SymposiumExperience() {
   const [activeSection, setActiveSection] = useState("home");
   const [activeTrack, setActiveTrack] = useState(0);
   const [selectedTrack, setSelectedTrack] = useState<number | null>(null);
+  const [activeParticipation, setActiveParticipation] = useState(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
   const footerRef = useRef<HTMLElement>(null);
@@ -689,11 +729,6 @@ export function SymposiumExperience() {
           gsap.fromTo(".timeline-annotations", { transform: "translate3d(0,20px,0)" }, { transform: "translate3d(0,-12px,0)", ease: "none", scrollTrigger: parallaxRange });
         }
 
-        gsap.fromTo(
-          ".cta-pattern",
-          { transform: "translateX(-7%)" },
-          { transform: "translateX(0%)", ease: "none", scrollTrigger: { trigger: ".register", start: "top bottom", end: "bottom top", scrub: 0.5 } },
-        );
       }, rootRef);
     });
 
@@ -959,18 +994,71 @@ export function SymposiumExperience() {
         </section>
 
         <section id="register" className="register" aria-labelledby="register-title">
-          <div className="cta-pattern" aria-hidden="true">
-            {Array.from({ length: 4 }, (_, index) => <div key={index}>ISCICPS&nbsp; ISCICPS&nbsp; ISCICPS&nbsp; ISCICPS</div>)}
-          </div>
-          <div className="section-note"><span>05</span><span>PARTICIPATE</span></div>
-          <h2 id="register-title" data-reveal>SUBMIT<br />YOUR<br /><span>RESEARCH.</span></h2>
-          <div className="register-links">
-            <a href="https://cmt3.research.microsoft.com/" target="_blank" rel="noreferrer" data-cursor="ENTER ↗">
-              <span>SUBMIT PAPER</span><span aria-hidden="true">↗</span>
-            </a>
-            <a href="https://cmt3.research.microsoft.com/" target="_blank" rel="noreferrer" data-cursor="ENTER ↗">
-              <span>REGISTER</span><span aria-hidden="true">↗</span>
-            </a>
+          <div className="participate-meta"><span>05 / 05</span><span>ISCICPS 2027 · PARTICIPATION DESK</span></div>
+
+          <header className="participate-heading">
+            <h2 id="register-title">PARTICIPATE</h2>
+            <p>Your work<br />belongs in<br />the <em>system.</em></p>
+            <span aria-hidden="true">Bring a question.<br />Leave with<br />a network.</span>
+          </header>
+
+          <div className="participate-layout">
+            <aside className="participate-intro">
+              <div className="participate-orbit" aria-hidden="true"><i /><i /><i /></div>
+              <h3>WHY PARTICIPATE?</h3>
+              <p>Exchange ideas, showcase innovation, build collaborations, and help shape the <em>future</em> of intelligent systems.</p>
+            </aside>
+
+            <div className="participation-paths" role="list" aria-label="Ways to participate">
+              {participationPaths.map((path, index) => (
+                <a
+                  className="participation-card"
+                  data-active={activeParticipation === index}
+                  href={path.href}
+                  target={path.href.startsWith("http") ? "_blank" : undefined}
+                  rel={path.href.startsWith("http") ? "noreferrer" : undefined}
+                  role="listitem"
+                  key={path.number}
+                  onMouseEnter={() => setActiveParticipation(index)}
+                  onFocus={() => setActiveParticipation(index)}
+                  data-cursor="OPEN ↗"
+                >
+                  <span className="participation-card-tape" aria-hidden="true" />
+                  <div className="participation-card-top"><b>{path.number}</b><span>{path.role}</span></div>
+                  <span className="participation-symbol" aria-hidden="true">{path.symbol}</span>
+                  <h3>{path.title}</h3>
+                  <p>{path.copy}</p>
+                  <em>{path.note}</em>
+                  <strong><span aria-hidden="true">→</span> {path.action}</strong>
+                </a>
+              ))}
+            </div>
+
+            <aside className="participant-manifest" aria-live="polite">
+              <div className="manifest-sheet">
+                <header>
+                  <p>INTERNATIONAL SYMPOSIUM ON<br /><strong>INTELLIGENT CYBER-PHYSICAL SYSTEMS</strong></p>
+                  <img src="/images/srm-seal.png" alt="" aria-hidden="true" />
+                </header>
+                <p className="manifest-participant">PARTICIPANT / <span>{participationPaths[activeParticipation].role}</span></p>
+                <div className="manifest-intents">
+                  <h3>I AM HERE TO</h3>
+                  {participationPaths.map((path, index) => (
+                    <span data-checked={activeParticipation === index} key={path.title}><i aria-hidden="true" />{path.title}</span>
+                  ))}
+                  <span data-checked={false}><i aria-hidden="true" />EXHIBIT</span>
+                </div>
+                <dl>
+                  <div><dt>FIELD /</dt><dd>{participationPaths[activeParticipation].field}</dd></div>
+                  <div><dt>AFFILIATION /</dt><dd>{participationPaths[activeParticipation].affiliation}</dd></div>
+                  <div><dt>EMAIL /</dt><dd>ieeescicps@gmail.com</dd></div>
+                </dl>
+                <a href={participationPaths[activeParticipation].href} target={participationPaths[activeParticipation].href.startsWith("http") ? "_blank" : undefined} rel={participationPaths[activeParticipation].href.startsWith("http") ? "noreferrer" : undefined}>
+                  <span aria-hidden="true">→</span> ENTER {participationPaths[activeParticipation].title}
+                </a>
+                <small>THANK YOU.<br />WE LOOK FORWARD TO MEETING YOU.</small>
+              </div>
+            </aside>
           </div>
         </section>
 
