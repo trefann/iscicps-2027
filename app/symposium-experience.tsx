@@ -809,18 +809,7 @@ export function SymposiumExperience() {
           </div>
         </section>
 
-        <section className="matter" aria-labelledby="matter-title">
-          <div className="section-note" data-reveal><span>00</span><span>SYSTEM STATE</span></div>
-          <h2 id="matter-title" className="matter-title">
-            <span className="matter-word">THE PHYSICAL</span>
-            <span className="matter-word">WORLD</span>
-            <span className="matter-word small">BECOMES</span>
-            <span className="matter-word signal">COMPUTATIONAL.</span>
-          </h2>
-        </section>
-
         <section id="about" className="about" aria-labelledby="about-title">
-          <div className="section-note about-note"><span>01</span><span>ABOUT THE SYMPOSIUM</span></div>
           <h2 id="about-title" className="about-heading">Where intelligence enters the physical world</h2>
           <p className="about-manifesto" aria-label={aboutManifesto}>
             {aboutWords.map((word, index) => (
@@ -848,7 +837,6 @@ export function SymposiumExperience() {
         <section ref={researchRef} id="research" className="research" aria-labelledby="research-title">
           <div ref={researchStageRef} className="research-stage">
             <div className="research-heading">
-              <div className="section-note research-note"><span>02</span><span>RESEARCH</span></div>
               <h2 id="research-title">FIVE RESEARCH TRACKS</h2>
               <span className="research-count" aria-live="polite" aria-atomic="true">
                 {String(activeTrack + 1).padStart(2, "0")} <i>/</i> 05
@@ -907,7 +895,7 @@ export function SymposiumExperience() {
         <TimelineSection />
 
         <section id="venue" className="venue" aria-labelledby="venue-title">
-          <div className="venue-meta"><span>04 / 05</span><span>SRMIST · KATTANKULATHUR</span></div>
+          <div className="venue-meta"><span>SRMIST · KATTANKULATHUR</span></div>
 
           <header className="venue-heading">
             <img className="venue-seal" src="/images/srm-seal.png" alt="SRM Institute of Science and Technology seal" loading="lazy" />

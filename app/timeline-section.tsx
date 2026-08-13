@@ -3,7 +3,6 @@ import { timelineItems, type TimelineItem } from "./timeline-data";
 function TimelineHeader() {
   return (
     <header className="timeline-header">
-      <p className="timeline-index">03 / 05</p>
       <h2 id="timeline-title">THE ROAD TO<br />THE <span>SYMPOSIUM</span></h2>
       <p className="timeline-deck">Key milestones leading to<br />the International Symposium.</p>
     </header>
