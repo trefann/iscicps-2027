@@ -568,18 +568,18 @@ html.lenis, html.lenis body { height: auto; }
 /* Footer */
 .site-footer {
   position: relative;
-  display: grid;
-  min-height: 112svh;
-  place-items: center;
+  min-height: 100svh;
   overflow: hidden;
-  padding: clamp(5rem, 8vw, 8rem) var(--page) 5rem;
-  background-color: #e8e2d7;
-  background-image: linear-gradient(rgba(21, 25, 34, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(21, 25, 34, 0.07) 1px, transparent 1px), radial-gradient(circle at 50% 45%, rgba(250, 247, 239, 0.9), rgba(232, 226, 215, 0.28) 48%, rgba(213, 205, 190, 0.5) 100%);
-  background-size: 8vw 8vw, 8vw 8vw, 100% 100%;
+  background-color: #f0ece2;
+  background-image: linear-gradient(rgba(21, 25, 34, 0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(21, 25, 34, 0.055) 1px, transparent 1px);
+  background-size: 8vw 8vw;
   color: var(--ink);
   isolation: isolate;
 }
-.site-footer::before { position: absolute; z-index: 0; inset: 0; background-image: radial-gradient(rgba(60, 49, 33, 0.14) 0.55px, transparent 0.65px); background-size: 4px 4px; content: ""; opacity: 0.18; pointer-events: none; }
+.site-footer::before { position: absolute; z-index: 0; inset: 1.4rem; border: 1px solid rgba(21, 25, 34, 0.1); content: ""; pointer-events: none; }
+.site-footer::after { position: absolute; z-index: 0; inset: 0; background-image: linear-gradient(115deg, transparent 0 49.85%, rgba(13, 79, 167, 0.035) 50%, transparent 50.15% 100%); content: ""; pointer-events: none; }
+.research-desk-canvas { position: absolute; z-index: 1; inset: 0; display: block; width: 100%; height: 100%; opacity: 0; touch-action: pan-y; transform: translateY(12px); transition: opacity 600ms ease, transform 800ms var(--ease-out); }
+.research-desk-canvas[data-visible] { opacity: 1; transform: translateY(0); }
 .research-desk { position: absolute; z-index: 1; inset: 0; pointer-events: none; }
 .desk-object { position: absolute; color: var(--ink); transform: translate3d(0,0,0) rotate(var(--desk-rotate, 0deg)); will-change: transform; }
 .desk-notebook { --desk-rotate: -5deg; top: 8%; left: 4%; width: clamp(10rem, 16vw, 17rem); height: clamp(14rem, 24vw, 23rem); padding: 2.7rem 1.4rem 1.2rem 2.2rem; border: 1px solid rgba(21,25,34,0.48); background: repeating-linear-gradient(#eee8dc 0 1.62rem, rgba(13,79,167,0.22) 1.66rem 1.7rem); box-shadow: 0 0.8rem 1.7rem rgba(55,45,31,0.14); font-family: var(--font-mono), monospace; }
@@ -848,7 +848,7 @@ html.lenis, html.lenis body { height: auto; }
   .participation-card-summary > h3 { justify-self: end; }
   .participation-card-details { min-height: 14rem; }
   .manifest-sheet { min-height: 32rem; }
-  .site-footer { min-height: 100svh; padding-right: 1.2rem; padding-left: 1.2rem; background-size: 20vw 20vw, 20vw 20vw, 100% 100%; }
+  .site-footer { min-height: 100svh; background-size: 25vw 25vw; }
   .footer-thanks { padding: 1.5rem 0.8rem; }
   .footer-thanks h2 { font-size: clamp(3rem, 10.5vw, 5.2rem); }
   .desk-drive, .desk-note--two, .desk-circuit, .desk-robot { display: none; }
@@ -876,7 +876,7 @@ html.lenis, html.lenis body { height: auto; }
   .about-doodle { opacity: 1 !important; }
   .matter-word, .cta-pattern { transform: none !important; }
   .hero-signal i { animation: none; }
-  .desk-object { transform: rotate(var(--desk-rotate, 0deg)) !important; }
+  .research-desk-canvas { opacity: 1 !important; transform: none !important; transition: none !important; }
   .timeline { min-height: 100svh; }
   .timeline-stage { position: relative; height: auto; min-height: 100svh; overflow: hidden; padding-bottom: 5rem; }
   .timeline-header { position: relative; }

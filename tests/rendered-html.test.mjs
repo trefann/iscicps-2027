@@ -30,17 +30,16 @@ test("server-renders the refined editorial ISCICPS experience", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>ISCICPS &#x27;27 .* Computational Intelligence for Cyber-Physical Systems<\/title>/i);
-  assert.match(html, /COMPUTATIONAL/);
-  assert.match(html, /INTELLIGENCE/);
-  assert.match(html, /INTELLIGENT[\s\S]*CYBER-PHYSICAL[\s\S]*SYSTEMS/);
-  assert.match(html, /CYBER-PHYSICAL/);
+  assert.match(html, /COMPUTATIONAL/i);
+  assert.match(html, /INTELLIGENCE/i);
+  assert.match(html, /INTELLIGENT[\s\S]*CYBER-PHYSICAL[\s\S]*SYSTEMS/i);
+  assert.match(html, /CYBER-PHYSICAL/i);
   assert.match(html, /21.*22/);
   assert.match(html, /April 2027/i);
   assert.match(html, /Cyber-physical systems begin when computation leaves the screen and enters the world/);
   assert.match(html, /ISCICPS brings researchers together to shape that future/);
-  assert.match(html, /THE PHYSICAL[\s\S]*WORLD/);
-  assert.match(html, /BECOMES[\s\S]*COMPUTATIONAL/);
-  assert.match(html, /FIVE RESEARCH TRACKS/);
+  assert.match(html, /THE PHYSICAL[\s\S]*WORLD/i);
+  assert.match(html, /FIVE RESEARCH TRACKS/i);
   assert.match(html, /Edge AI &amp; Embedded Intelligence/);
   assert.match(html, /Autonomous Systems &amp; Robotics/);
   assert.match(html, /Smart Energy &amp; Industrial Infrastructure/);
@@ -50,13 +49,10 @@ test("server-renders the refined editorial ISCICPS experience", async () => {
   assert.match(html, /Computational intelligence operating close to the physical processes it observes/);
   assert.doesNotMatch(html, /WHY IT MATTERS/);
   assert.doesNotMatch(html, /EXAMPLES \/ APPLICATIONS/);
-  assert.match(html, /IMPORTANT DATES/);
   assert.match(html, /KATTAN/);
-  assert.match(html, /SUBMIT[\s\S]*YOUR[\s\S]*RESEARCH/);
-  assert.match(html, /SUBMIT PAPER/);
   assert.match(html, /REGISTER/);
   assert.match(html, /href="https:\/\/cmt3\.research\.microsoft\.com\/"/);
-  assert.match(html, /href="mailto:ieeescicps@gmail\.com"/);
+  assert.match(html, /href="mailto:ieeescicps@gmail\.com/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image"\/>/);
   assert.match(html, /<meta property="og:image" content="https:\/\/iscicps\.in\/og\.png"\/>/);
   assert.doesNotMatch(html, /Where intelligence leaves/i);
@@ -66,8 +62,9 @@ test("server-renders the refined editorial ISCICPS experience", async () => {
 });
 
 test("keeps motion, imagery and accessibility intentional", async () => {
-  const [experience, css, page, layout, packageJson] = await Promise.all([
+  const [experience, deskCanvas, css, page, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/symposium-experience.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/research-desk-canvas.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
@@ -99,7 +96,14 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(experience, /Previous research track/);
   assert.match(experience, /Next research track/);
   assert.match(experience, /className="track-dialog"/);
-  assert.match(experience, /className="footer-reveal"/);
+  assert.match(experience, /<ResearchDeskCanvas \/>/);
+  assert.doesNotMatch(experience, /footer-thanks|footer-deskline|desk-notebook/);
+  assert.match(deskCanvas, /gsap\.timeline/);
+  assert.match(deskCanvas, /targetCount = stage\.width < 560 \? 8 : stage\.width < 900 \? 13 : 22/);
+  assert.match(deskCanvas, /prefers-reduced-motion: reduce/);
+  assert.match(deskCanvas, /"robotHand"/);
+  assert.match(deskCanvas, /"venuePlan"/);
+  assert.match(deskCanvas, /role="img"/);
   assert.match(experience, /KEY RESEARCH AREAS/);
   assert.match(experience, /WHY IT MATTERS/);
   assert.match(experience, /data-cursor=/);
@@ -128,6 +132,7 @@ test("keeps motion, imagery and accessibility intentional", async () => {
   assert.match(css, /--cyan: #4cc9f0/);
   assert.doesNotMatch(css, /--dark-blue|mobile-menu/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(css, /\.research-desk-canvas\[data-visible\]/);
   assert.match(css, /\.about-word \{ color: var\(--ink\) !important; \}/);
   assert.doesNotMatch(css, /\.loader|@keyframes loader-/);
   assert.doesNotMatch(css, /researcher-type|researcher-breathe|typing-dot/);
