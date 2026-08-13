@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { TimelineSection } from "./timeline-section";
 
 const navItems = [
   ["home", "Home"],
@@ -79,13 +80,6 @@ const researchTracks = [
   },
 ];
 
-const milestones = [
-  { day: "31", month: "OCT", year: "2026", iso: "2026-10-31", title: "Paper submission" },
-  { day: "15", month: "NOV", year: "2026", iso: "2026-11-15", title: "Acceptance" },
-  { day: "15", month: "JAN", year: "2027", iso: "2027-01-15", title: "Registration" },
-  { day: "21—22", month: "APR", year: "2027", iso: "2027-04-21", title: "ISCICPS '27" },
-];
-
 const aboutManifesto = "Cyber-physical systems begin when computation leaves the screen and enters the world, sensing movement, interpreting uncertainty, and turning intelligence into physical action. Yet meaningful progress demands more than speed: it requires machines that remain safe, resilient, explainable, and worthy of human trust. ISCICPS brings researchers together to shape that future.";
 const aboutWords = aboutManifesto.split(" ");
 
@@ -149,7 +143,6 @@ export function SymposiumExperience() {
   const [activeSection, setActiveSection] = useState("home");
   const [activeTrack, setActiveTrack] = useState(0);
   const [selectedTrack, setSelectedTrack] = useState<number | null>(null);
-  const [activeMilestone, setActiveMilestone] = useState(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
   const footerRef = useRef<HTMLElement>(null);
@@ -178,7 +171,9 @@ export function SymposiumExperience() {
     const trigger = researchScrollRef.current;
     if (trigger) {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const progress = nextIndex / (researchTracks.length - 1);
+      const progress = nextIndex === researchTracks.length - 1
+        ? (nextIndex + 0.5) / researchTracks.length
+        : nextIndex / researchTracks.length;
       window.scrollTo({ top: trigger.start + (trigger.end - trigger.start) * progress, behavior: reduce ? "auto" : "smooth" });
       return;
     }
@@ -192,6 +187,45 @@ export function SymposiumExperience() {
     query.addEventListener("change", updatePreference);
     return () => query.removeEventListener("change", updatePreference);
   }, []);
+
+  useEffect(() => {
+    if (!loaded || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let cancelled = false;
+    let cleanup = () => {};
+
+    Promise.all([import("@studio-freight/lenis"), import("gsap"), import("gsap/ScrollTrigger")]).then(([lenisModule, gsapModule, scrollModule]) => {
+      if (cancelled) return;
+      const Lenis = lenisModule.default;
+      const gsap = gsapModule.gsap;
+      const ScrollTrigger = scrollModule.ScrollTrigger;
+      gsap.registerPlugin(ScrollTrigger);
+
+      const lenis = new Lenis({
+        duration: 1.2,
+        wheelMultiplier: 0.85,
+        smoothWheel: true,
+        touchMultiplier: 1.05,
+      });
+      const updateScrollTrigger = () => ScrollTrigger.update();
+      const driveLenis = (time: number) => lenis.raf(time * 1000);
+
+      lenis.on("scroll", updateScrollTrigger);
+      gsap.ticker.add(driveLenis);
+      gsap.ticker.lagSmoothing(0);
+
+      cleanup = () => {
+        lenis.off("scroll", updateScrollTrigger);
+        gsap.ticker.remove(driveLenis);
+        gsap.ticker.lagSmoothing(500, 33);
+        lenis.destroy();
+      };
+    });
+
+    return () => {
+      cancelled = true;
+      cleanup();
+    };
+  }, [loaded]);
 
   useEffect(() => {
     if (selectedTrack === null) return;
@@ -313,53 +347,6 @@ export function SymposiumExperience() {
     return () => {
       cancelled = true;
       cleanup();
-    };
-  }, [loaded]);
-
-  useEffect(() => {
-    if (!loaded) return;
-    const timeline = document.querySelector<HTMLElement>(".timeline");
-    const entries = Array.from(document.querySelectorAll<HTMLElement>(".timeline li"));
-    if (!timeline || entries.length === 0) return;
-
-    let frame = 0;
-    const updateMilestone = () => {
-      frame = 0;
-      const viewportHeight = window.innerHeight;
-      let nextMilestone = 0;
-
-      if (window.innerWidth <= 540) {
-        const activationLine = viewportHeight * 0.44;
-        nextMilestone = entries.reduce((closestIndex, entry, index) => {
-          const entryRect = entry.getBoundingClientRect();
-          const closestRect = entries[closestIndex].getBoundingClientRect();
-          const entryDistance = Math.abs(entryRect.top + entryRect.height * 0.34 - activationLine);
-          const closestDistance = Math.abs(closestRect.top + closestRect.height * 0.34 - activationLine);
-          return entryDistance < closestDistance ? index : closestIndex;
-        }, 0);
-      } else {
-        const timelineRect = timeline.getBoundingClientRect();
-        const startLine = viewportHeight * 0.72;
-        const scrollRange = Math.max(1, timelineRect.height - viewportHeight * 0.38);
-        const progress = Math.min(1, Math.max(0, (startLine - timelineRect.top) / scrollRange));
-        nextMilestone = Math.round(progress * (entries.length - 1));
-      }
-
-      setActiveMilestone((current) => current === nextMilestone ? current : nextMilestone);
-    };
-
-    const requestUpdate = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(updateMilestone);
-    };
-
-    updateMilestone();
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
-    return () => {
-      if (frame) window.cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
     };
   }, [loaded]);
 
@@ -607,12 +594,12 @@ export function SymposiumExperience() {
             pin: researchStage,
             pinType: "transform",
             start: "top top",
-            end: () => `+=${window.innerHeight * (researchTracks.length - 1)}`,
+            end: () => `+=${window.innerHeight * researchTracks.length}`,
             scrub: 0.15,
             anticipatePin: 1,
             invalidateOnRefresh: true,
-            onUpdate: ({ progress }) => renderJourney(progress),
-            onRefresh: ({ progress }) => renderJourney(progress),
+            onUpdate: ({ progress }) => renderJourney(Math.min(1, progress * researchTracks.length / (researchTracks.length - 1))),
+            onRefresh: ({ progress }) => renderJourney(Math.min(1, progress * researchTracks.length / (researchTracks.length - 1))),
           });
           researchScrollRef.current = researchTrigger;
           clearResearchJourney = () => {
@@ -640,11 +627,67 @@ export function SymposiumExperience() {
           );
         });
 
-        gsap.fromTo(
-          ".timeline-progress i",
-          { scaleX: 0 },
-          { scaleX: 1, ease: "none", scrollTrigger: { trigger: ".timeline", start: "top 68%", end: "bottom 52%", scrub: 0.45 } },
-        );
+        const timelineSection = document.querySelector<HTMLElement>(".timeline");
+        const timelineMasks = gsap.utils.toArray<SVGPathElement>(".timeline-axis-mask");
+        const timelineArrows = gsap.utils.toArray<SVGPathElement>(".timeline-axis-arrow");
+        const timelineMilestones = gsap.utils.toArray<HTMLElement>(".timeline-milestone");
+        if (timelineSection && timelineMasks.length && timelineMilestones.length) {
+          timelineMasks.forEach((mask) => {
+            const length = mask.getTotalLength();
+            gsap.set(mask, { strokeDasharray: length, strokeDashoffset: length });
+          });
+          gsap.set(timelineArrows, { opacity: 0 });
+          let currentTimelineMilestone = -1;
+          const milestoneStops = [0, 0.25, 0.5, 0.75, 0.94];
+          const timelineJourney = gsap.timeline({
+            defaults: { ease: "power3.out" },
+            scrollTrigger: {
+              trigger: timelineSection,
+              start: "top top",
+              end: "bottom bottom",
+              scrub: 0.5,
+              invalidateOnRefresh: true,
+              onUpdate: ({ progress }) => {
+                const nextIndex = milestoneStops.reduce((active, stop, index) => progress >= stop ? index : active, 0);
+                if (nextIndex === currentTimelineMilestone) return;
+                currentTimelineMilestone = nextIndex;
+                timelineMilestones.forEach((milestone, index) => {
+                  const active = index === nextIndex;
+                  milestone.classList.toggle("is-active", active);
+                  if (active) milestone.setAttribute("aria-current", "date"); else milestone.removeAttribute("aria-current");
+                });
+              },
+            },
+          });
+
+          timelineJourney
+            .to(timelineArrows, { opacity: 1, duration: 0.06, ease: "none" }, 0.94);
+          timelineMasks.forEach((mask) => {
+            timelineJourney.to(mask, { strokeDashoffset: 0, duration: 1, ease: "none" }, 0);
+          });
+          timelineMilestones.forEach((milestone, index) => {
+            const at = milestoneStops[index];
+            const node = milestone.querySelector(".timeline-node");
+            const date = milestone.querySelector(".timeline-date");
+            const title = milestone.querySelector("h3");
+            const description = milestone.querySelector("p");
+            const hand = milestone.querySelector(".timeline-hand");
+            const initiallyVisible = index === 0;
+            timelineJourney
+              .fromTo(node, { opacity: initiallyVisible ? 1 : 0.38, scale: initiallyVisible ? 1 : 0.96 }, { opacity: 1, scale: 1, duration: 0.075 }, at)
+              .fromTo(date, { opacity: initiallyVisible ? 1 : 0.34, transform: initiallyVisible ? "translateY(0px)" : "translateY(15px)" }, { opacity: 1, transform: "translateY(0px)", duration: 0.1 }, at)
+              .fromTo(title, { opacity: initiallyVisible ? 1 : 0.34, transform: initiallyVisible ? "translateY(0px)" : "translateY(9px)" }, { opacity: 1, transform: "translateY(0px)", duration: 0.085 }, at + 0.018)
+              .fromTo(description, { opacity: initiallyVisible ? 1 : 0.08, transform: initiallyVisible ? "translateY(0px)" : "translateY(8px)" }, { opacity: 1, transform: "translateY(0px)", duration: 0.09 }, at + 0.038)
+              .fromTo(hand, { opacity: initiallyVisible ? 0.72 : 0, transform: initiallyVisible ? "translateY(0px) rotate(-3deg)" : "translateY(9px) rotate(-3deg)" }, { opacity: 0.72, transform: "translateY(0px) rotate(-3deg)", duration: 0.075 }, at + 0.055);
+          });
+
+          const parallaxRange = { trigger: timelineSection, start: "top bottom", end: "bottom top", scrub: 0.55 };
+          gsap.fromTo(".timeline-grid-layer", { transform: "translate3d(0,-1.5%,0)" }, { transform: "translate3d(0,1.5%,0)", ease: "none", scrollTrigger: parallaxRange });
+          gsap.fromTo(".timeline-date-wrap", { transform: "translate3d(0,18px,0)" }, { transform: "translate3d(0,-4px,0)", ease: "none", scrollTrigger: parallaxRange });
+          gsap.fromTo(".timeline-technical-art", { transform: "translate3d(0,28px,0) rotate(2deg)" }, { transform: "translate3d(0,-6px,0) rotate(2deg)", ease: "none", scrollTrigger: parallaxRange });
+          gsap.fromTo(".timeline-margin-note", { transform: "translate3d(0,34px,0) rotate(3deg)" }, { transform: "translate3d(0,-5px,0) rotate(3deg)", ease: "none", scrollTrigger: parallaxRange });
+          gsap.fromTo(".timeline-annotations", { transform: "translate3d(0,20px,0)" }, { transform: "translate3d(0,-12px,0)", ease: "none", scrollTrigger: parallaxRange });
+        }
 
         gsap.fromTo(
           ".cta-pattern",
@@ -861,42 +904,69 @@ export function SymposiumExperience() {
           </div>
         </section>
 
-        <section id="timeline" className="timeline" aria-labelledby="timeline-title">
-          <div className="section-note" data-reveal><span>03</span><span>IMPORTANT DATES</span></div>
-          <h2 id="timeline-title" data-reveal>THE SYSTEM<br /><span>PROGRESSES.</span></h2>
-          <div className="timeline-progress" aria-hidden="true"><i /></div>
-          <ol>
-            {milestones.map((milestone, index) => (
-              <li
-                className={activeMilestone === index ? "is-active" : ""}
-                data-index={index}
-                key={milestone.iso}
-                tabIndex={0}
-                aria-current={activeMilestone === index ? "date" : undefined}
-                onMouseEnter={() => setActiveMilestone(index)}
-                onFocus={() => setActiveMilestone(index)}
-              >
-                <time dateTime={milestone.iso}>
-                  <strong>{milestone.day}</strong>
-                  <span>{milestone.month}<br />{milestone.year}</span>
-                </time>
-                <p>{milestone.title}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
+        <TimelineSection />
 
         <section id="venue" className="venue" aria-labelledby="venue-title">
-          <div className="venue-image" data-mask data-cursor="VIEW ↗">
-            <img loading="lazy" src="/images/srm-auditorium-1920.jpg" alt="Dr T. P. Ganesan Auditorium at SRMIST" />
-          </div>
-          <div className="venue-meta"><span>04 / VENUE</span><span>CHENNAI, INDIA</span></div>
-          <div className="venue-copy">
+          <div className="venue-meta"><span>04 / 05</span><span>SRMIST · KATTANKULATHUR</span></div>
+
+          <header className="venue-heading">
+            <img className="venue-seal" src="/images/srm-seal.png" alt="SRM Institute of Science and Technology seal" loading="lazy" />
             <p>SRM INSTITUTE OF SCIENCE AND TECHNOLOGY</p>
-            <h2 id="venue-title">SRMIST<br /><span>KATTAN—</span><br />KULATHUR</h2>
-            <a href="https://maps.google.com/?q=SRM+Institute+of+Science+and+Technology+Kattankulathur" target="_blank" rel="noreferrer">
-              LOCATE CAMPUS <span aria-hidden="true">↗</span>
-            </a>
+            <h2 id="venue-title">THE VENUE</h2>
+          </header>
+
+          <div className="venue-layout">
+            <aside className="venue-side venue-side--left">
+              <figure className="venue-image venue-image--auditorium" data-cursor="VIEW ↗">
+                <img loading="lazy" src="/images/srm-auditorium-1920.jpg" alt="Dr T. P. Ganesan Auditorium at SRMIST" />
+                <figcaption>Dr T. P. Ganesan Auditorium · Fig. 01</figcaption>
+              </figure>
+              <div className="venue-coordinate" aria-label="Campus coordinates">
+                <span>SRMIST</span>
+                <span>KATTANKULATHUR</span>
+                <span>12°49′36″ N</span>
+                <span>80°02′44″ E</span>
+              </div>
+            </aside>
+
+            <div className="venue-copy">
+              <p>
+                ISCICPS ’27 will be hosted at <strong>SRM Institute of Science and Technology</strong>,
+                Kattankulathur—a nationally recognised university and a vibrant centre for
+                <em> research, innovation, and interdisciplinary learning.</em>
+              </p>
+              <p>
+                Set within a connected academic campus near Chennai, the venue brings together
+                <strong><em> advanced laboratories, collaborative spaces, modern auditoria,</em></strong>
+                and the infrastructure needed for focused exchange between researchers,
+                practitioners, and emerging scholars.
+              </p>
+              <p>
+                Across two days, delegates will find an environment designed for
+                <em> thoughtful conversation and new partnerships</em>—a place where ideas can move
+                beyond presentation into <strong><em>future-shaping research and real-world impact.</em></strong>
+              </p>
+              <p className="venue-signoff"><em>Where research meets reality, and people shape what comes next.</em></p>
+            </div>
+
+            <aside className="venue-side venue-side--right">
+              <p className="venue-margin-note"><em>Built for collaboration.<br />Designed to inspire.</em></p>
+              <figure className="venue-image venue-image--campus" data-cursor="VIEW ↗">
+                <img loading="lazy" src="/images/srm-campus-aerial.jpg" alt="Aerial view of the SRMIST Kattankulathur campus" />
+                <figcaption>Kattankulathur campus · Fig. 02</figcaption>
+              </figure>
+              <div className="venue-facts">
+                <dl>
+                  <div><dt>FORMAT</dt><dd>IN-PERSON SYMPOSIUM</dd></div>
+                  <div><dt>ACCESS</dt><dd>≈ 35 KM FROM AIRPORT</dd></div>
+                  <div><dt>AIRPORT</dt><dd>CHENNAI INTERNATIONAL</dd></div>
+                  <div><dt>CITY</dt><dd>CHENNAI, INDIA</dd></div>
+                </dl>
+                <a href="https://maps.google.com/?q=SRM+Institute+of+Science+and+Technology+Kattankulathur" target="_blank" rel="noreferrer">
+                  LOCATE CAMPUS <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </aside>
           </div>
         </section>
 
