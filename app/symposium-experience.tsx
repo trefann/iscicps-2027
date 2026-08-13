@@ -349,44 +349,41 @@ export function SymposiumExperience() {
   useEffect(() => {
     if (!loaded || !footerRef.current) return;
     const footer = footerRef.current;
-    let cancelled = false;
-    let cleanup = () => {};
+    if (window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse)").matches) return;
+    const objects = Array.from(footer.querySelectorAll<HTMLElement>("[data-desk-depth]"));
+    let frame = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
 
-    import("gsap").then(({ gsap }) => {
-      if (cancelled) return;
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const coarse = window.matchMedia("(pointer: coarse)").matches;
-      const rect = footer.getBoundingClientRect();
-      gsap.set(footer, {
-        "--mask-x": `${rect.width * 0.5}px`,
-        "--mask-y": `${rect.height * 0.5}px`,
-        "--mask-size": reduce ? "180px" : "0px",
+    const draw = () => {
+      currentX += (targetX - currentX) * 0.09;
+      currentY += (targetY - currentY) * 0.09;
+      objects.forEach((object) => {
+        const depth = Number(object.dataset.deskDepth ?? 0);
+        object.style.transform = `translate3d(${currentX * depth}px, ${currentY * depth}px, 0) rotate(var(--desk-rotate, 0deg))`;
       });
-      const xTo = gsap.quickTo(footer, "--mask-x", { duration: reduce ? 0.01 : 0.42, ease: "power3.out" });
-      const yTo = gsap.quickTo(footer, "--mask-y", { duration: reduce ? 0.01 : 0.42, ease: "power3.out" });
-      const sizeTo = gsap.quickTo(footer, "--mask-size", { duration: reduce ? 0.01 : 0.52, ease: "power3.out" });
+      frame = window.requestAnimationFrame(draw);
+    };
+    const move = (event: PointerEvent) => {
+      const bounds = footer.getBoundingClientRect();
+      targetX = (event.clientX - bounds.left) / bounds.width - 0.5;
+      targetY = (event.clientY - bounds.top) / bounds.height - 0.5;
+    };
+    const leave = () => {
+      targetX = 0;
+      targetY = 0;
+    };
 
-      const move = (event: PointerEvent) => {
-        const bounds = footer.getBoundingClientRect();
-        xTo(event.clientX - bounds.left);
-        yTo(event.clientY - bounds.top);
-        sizeTo(Math.min(300, Math.max(190, window.innerWidth * 0.2)));
-      };
-      const leave = () => sizeTo(coarse || window.innerWidth <= 800 ? 150 : 0);
-      footer.addEventListener("pointermove", move, { passive: true });
-      footer.addEventListener("pointerdown", move, { passive: true });
-      footer.addEventListener("pointerleave", leave, { passive: true });
-      cleanup = () => {
-        footer.removeEventListener("pointermove", move);
-        footer.removeEventListener("pointerdown", move);
-        footer.removeEventListener("pointerleave", leave);
-        gsap.killTweensOf(footer);
-      };
-    });
-
+    frame = window.requestAnimationFrame(draw);
+    footer.addEventListener("pointermove", move, { passive: true });
+    footer.addEventListener("pointerleave", leave, { passive: true });
     return () => {
-      cancelled = true;
-      cleanup();
+      window.cancelAnimationFrame(frame);
+      footer.removeEventListener("pointermove", move);
+      footer.removeEventListener("pointerleave", leave);
+      objects.forEach((object) => object.style.removeProperty("transform"));
     };
   }, [loaded]);
 
@@ -1068,12 +1065,40 @@ export function SymposiumExperience() {
         </section>
 
         <footer ref={footerRef} className="site-footer">
-          <div className="footer-reveal" aria-hidden="true"><img loading="lazy" src="/images/srm-campus-aerial.jpg" alt="" /></div>
-          <div className="footer-signal" aria-hidden="true"><i /></div>
-          <a className="footer-mark" href="#home">ISCICPS <sup>&apos;27</sup></a>
-          <p>INTERNATIONAL SYMPOSIUM ON<br />COMPUTATIONAL INTELLIGENCE FOR<br />CYBER-PHYSICAL SYSTEMS</p>
-          <div className="footer-contact"><a href="mailto:ieeescicps@gmail.com">ieeescicps@gmail.com</a><span>SRMIST · KATTANKULATHUR</span></div>
-          <small>© 2026 ISCICPS</small>
+          <div className="research-desk" aria-hidden="true">
+            <div className="desk-object desk-notebook" data-desk-depth="18">
+              <i className="notebook-coil" /><span>FIELD NOTES</span><b>01 — systems<br />02 — people<br />03 — possibility</b><em>observe → connect → build</em>
+            </div>
+            <div className="desk-object desk-badge" data-desk-depth="25">
+              <i /><span>ISCICPS ’27</span><strong>RESEARCHER</strong><small>SRMIST · INDIA</small>
+            </div>
+            <div className="desk-object desk-paper" data-desk-depth="13">
+              <span>MANUSCRIPT / 027</span><strong>INTELLIGENT SYSTEMS<br />IN THE PHYSICAL WORLD</strong><i /><i /><i /><small>accepted for conversation</small>
+            </div>
+            <div className="desk-object desk-schematic" data-desk-depth="10">
+              <span>ARCH / SECTION A—A</span><div><i /><i /><i /><i /><i /><i /></div><small>collaboration hall · 1:200</small>
+            </div>
+            <div className="desk-object desk-robot" data-desk-depth="21">
+              <img src="/images/iscicps-hero-sculpture-transparent.png" alt="" loading="lazy" /><span>human ↔ machine</span>
+            </div>
+            <div className="desk-object desk-drive" data-desk-depth="30"><i /><span>DATA<br />027</span></div>
+            <div className="desk-object desk-note desk-note--one" data-desk-depth="28">What if the<br /><strong>system listened?</strong><i /></div>
+            <div className="desk-object desk-note desk-note--two" data-desk-depth="16">remember:<br /><strong>people first.</strong></div>
+            <div className="desk-object desk-coffee" data-desk-depth="8"><i /><span>late idea<br />no. 04</span></div>
+            <div className="desk-object desk-compass" data-desk-depth="12"><span>N</span><i /><b>ICPS</b><i /><span>S</span></div>
+            <div className="desk-object desk-circuit" data-desk-depth="20"><i /><i /><i /><i /><b /><b /><b /></div>
+          </div>
+
+          <div className="footer-thanks">
+            <span>END OF PROCEEDINGS / BEGINNING OF WHAT’S NEXT</span>
+            <h2>THANK YOU<br />FOR BEING PART<br />OF THE <em>SYSTEM.</em></h2>
+            <p>ICPS 2027<br />SRMIST<br />KATTANKULATHUR</p>
+          </div>
+          <div className="footer-deskline">
+            <a href="mailto:ieeescicps@gmail.com">ieeescicps@gmail.com</a>
+            <a href="#home">RETURN TO THE TOP ↑</a>
+            <span>© 2026 ISCICPS</span>
+          </div>
         </footer>
       </div>
 
