@@ -67,7 +67,6 @@ function TimelineAnnotations() {
       <span className="timeline-crosshair timeline-crosshair--a" />
       <span className="timeline-crosshair timeline-crosshair--b" />
       <span className="timeline-hatch"><i /><i /><i /><i /></span>
-      <span className="timeline-compass"><i>N</i><b /><i>S</i></span>
       <span className="timeline-coordinate">x̂(t) → u(t)</span>
       <span className="timeline-footer-note">TIME IS OUR<br />SHARED INFRASTRUCTURE.</span>
     </div>

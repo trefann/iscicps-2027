@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 
 type ArtifactType =
   | "notebook" | "paper" | "badge" | "schematic" | "circuit" | "robotHand"
-  | "component" | "venuePlan" | "note" | "usb" | "compass" | "ruler"
+  | "component" | "venuePlan" | "note" | "usb" | "ruler"
   | "coffee" | "pencil" | "photo" | "network" | "chip" | "sensor"
   | "waveform" | "equation" | "globe" | "tracing" | "paperclip";
 
@@ -33,7 +33,7 @@ const INK = "#171717";
 const PAPER = "#f0ece2";
 const artifactTypes: ArtifactType[] = [
   "notebook", "paper", "badge", "schematic", "circuit", "robotHand", "component",
-  "venuePlan", "note", "usb", "compass", "ruler", "coffee", "pencil", "photo",
+  "venuePlan", "note", "usb", "ruler", "coffee", "pencil", "photo",
   "network", "chip", "sensor", "waveform", "equation", "globe", "tracing", "paperclip",
 ];
 
@@ -51,7 +51,7 @@ function artifactProfile(type: ArtifactType): MotionProfile {
 function artifactSize(type: ArtifactType) {
   if (["notebook", "paper", "venuePlan", "schematic", "equation", "tracing"].includes(type)) return [190, 138];
   if (["badge", "robotHand", "photo"].includes(type)) return [116, 148];
-  if (["coffee", "globe", "compass", "network"].includes(type)) return [94, 94];
+  if (["coffee", "globe", "network"].includes(type)) return [94, 94];
   if (["pencil", "ruler"].includes(type)) return [154, 30];
   if (["circuit", "waveform", "chip"].includes(type)) return [132, 86];
   return [84, 64];
@@ -168,12 +168,11 @@ function drawArtifact(ctx: CanvasRenderingContext2D, object: DeskObject) {
       ctx.fillStyle = "#d9d2c5"; ctx.strokeStyle = INK; ctx.fillRect(16,8,w-18,h-16); ctx.strokeRect(16,8,w-18,h-16); ctx.fillRect(0,18,18,h-36); ctx.strokeRect(0,18,18,h-36); label(ctx,"DATA",28,h/2,7);
       break;
     }
-    case "compass":
     case "globe": {
       ctx.strokeStyle = BLUE; ctx.beginPath(); ctx.arc(w/2,h/2,Math.min(w,h)*0.38,0,Math.PI*2); ctx.stroke();
       ctx.beginPath(); ctx.ellipse(w/2,h/2,w*.13,h*.38,0,0,Math.PI*2); ctx.stroke();
       ctx.beginPath(); ctx.ellipse(w/2,h/2,w*.38,h*.13,0,0,Math.PI*2); ctx.stroke();
-      line(ctx,w/2,4,w/2,h-4,INK,.45); line(ctx,4,h/2,w-4,h/2,INK,.45); label(ctx,object.type === "compass" ? "N" : "CPS",w/2-3,8,7);
+      line(ctx,w/2,4,w/2,h-4,INK,.45); line(ctx,4,h/2,w-4,h/2,INK,.45); label(ctx,"CPS",w/2-3,8,7);
       break;
     }
     case "ruler": {
@@ -233,10 +232,14 @@ export function ResearchDeskCanvas() {
       return { type, profile: artifactProfile(type), x: 0, y: 0, width, height, rotation: 0, scale: 1, depth: 0.5, opacity: 1, phase: range(0, Math.PI * 2), bob: 2, bobSpeed: 0.001, tween: null };
     };
 
-    const laneY = (depth: number) => {
+    const laneY = (depth: number, renderedHeight: number) => {
+      const minimumY = 12;
+      const maximumY = Math.max(minimumY, stage.height - renderedHeight - 12);
       const edgeLane = Math.random() > 0.46;
-      if (!edgeLane && depth < 0.45) return range(stage.height * 0.28, stage.height * 0.72);
-      return Math.random() > 0.5 ? range(-30, stage.height * 0.27) : range(stage.height * 0.72, stage.height - 20);
+      if (!edgeLane && depth < 0.45) return range(Math.min(maximumY, stage.height * 0.28), Math.min(maximumY, stage.height * 0.62));
+      const topMaximum = Math.min(maximumY, stage.height * 0.24);
+      const bottomMinimum = Math.min(maximumY, Math.max(minimumY, stage.height * 0.64));
+      return Math.random() > 0.5 ? range(minimumY, topMaximum) : range(bottomMinimum, maximumY);
     };
 
     const spawn = (object: DeskObject, initialize = false) => {
@@ -257,14 +260,15 @@ export function ResearchDeskCanvas() {
       const direction = Math.random() > 0.5 ? 1 : -1;
       const renderedWidth = object.width * object.scale;
       object.x = direction > 0 ? -renderedWidth - 30 : stage.width + renderedWidth + 30;
-      object.y = laneY(object.depth);
+      object.y = laneY(object.depth, object.height * object.scale);
       const endX = direction > 0 ? stage.width + renderedWidth + 30 : -renderedWidth - 30;
-      const drift = object.profile === "floating" ? range(-stage.height * 0.16, stage.height * 0.16) : range(-18, 18);
-      const profileSpeed = { paper: 17, technical: 24, fragment: 34, heavy: 14, floating: 20 }[object.profile];
-      const speed = profileSpeed * (0.72 + object.depth * 0.52);
+      const rawDrift = object.profile === "floating" ? range(-stage.height * 0.12, stage.height * 0.12) : range(-18, 18);
+      const endY = Math.min(stage.height - object.height * object.scale - 12, Math.max(12, object.y + rawDrift));
+      const profileSpeed = { paper: 26, technical: 36, fragment: 48, heavy: 22, floating: 31 }[object.profile];
+      const speed = profileSpeed * (0.78 + object.depth * 0.58);
       const duration = Math.abs(endX - object.x) / speed;
       object.tween = gsap.timeline({ onComplete: () => spawn(object) })
-        .to(object, { x: endX, y: object.y + drift, rotation: object.rotation + range(-0.035, 0.035), duration, ease: "none" });
+        .to(object, { x: endX, y: endY, rotation: object.rotation + range(-0.035, 0.035), duration, ease: "none" });
       if (initialize) object.tween.progress(Math.random());
     };
 
@@ -286,7 +290,9 @@ export function ResearchDeskCanvas() {
       stage.dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(stage.width * stage.dpr);
       canvas.height = Math.round(stage.height * stage.dpr);
-      const targetCount = stage.width < 560 ? 8 : stage.width < 900 ? 13 : 22;
+      const targetCount = reducedMotion
+        ? (stage.width < 560 ? 8 : 12)
+        : stage.width < 560 ? 12 : stage.width < 900 ? 20 : 32;
       objects.forEach((object) => object.tween?.kill());
       objects.length = 0;
       for (let index = 0; index < targetCount; index += 1) objects.push(makeObject(index));
