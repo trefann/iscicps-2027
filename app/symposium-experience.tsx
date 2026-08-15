@@ -3,6 +3,9 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { ResearchDeskCanvas } from "./research-desk-canvas";
 import { TimelineSection } from "./timeline-section";
+import { TrackCaseFile, type ResearchTrackCase } from "./track-case-file";
+import { LoadingScreen } from "./loading-screen";
+import { ResearchAnnotations } from "./research-annotations";
 
 const navItems = [
   ["home", "Home"],
@@ -13,7 +16,7 @@ const navItems = [
   ["register", "Participate"],
 ] as const;
 
-const researchTracks = [
+const researchTracks: ResearchTrackCase[] = [
   {
     number: "01",
     title: "Edge AI & Embedded Intelligence",
@@ -25,7 +28,10 @@ const researchTracks = [
     why: "Local inference reduces communication delay and supports responsive behavior where timing, energy and hardware limits matter. The focus is not AI in isolation, but intelligence designed for the device that must execute it.",
     applications: ["Embedded vision", "Industrial monitoring", "Environmental sensing", "Wearable systems"],
     image: "/images/tracks-sketch/edge-ai.png",
+    photo: "/images/tracks/edge-ai.webp",
     position: "center center",
+    statement: "Intelligence must live where decisions happen.",
+    questions: ["How much intelligence can move closer to the machine?", "How can low-latency decisions remain efficient within embedded hardware limits?"],
   },
   {
     number: "02",
@@ -38,7 +44,10 @@ const researchTracks = [
     why: "Reliable autonomy depends on the continuous connection between sensing and physical action. Research here studies how robots remain adaptive, coordinated and aware while operating beyond tightly controlled conditions.",
     applications: ["Self-driving vehicles", "Aerial drones", "Mobile inspection", "Cooperative robot teams"],
     image: "/images/tracks-sketch/autonomous-systems.png",
+    photo: "/images/tracks/autonomous-systems.webp",
     position: "center center",
+    statement: "Perception becomes consequential when it becomes action.",
+    questions: ["How can autonomous systems decide safely under uncertainty?", "How can coordinated machines remain adaptive beyond controlled environments?"],
   },
   {
     number: "03",
@@ -51,7 +60,10 @@ const researchTracks = [
     why: "Infrastructure becomes more efficient when it can anticipate demand, identify degradation and adjust operations before failure. The research links energy intelligence with the realities of large physical assets and industrial processes.",
     applications: ["Energy management", "Manufacturing systems", "Equipment health", "Demand-aware control"],
     image: "/images/tracks-sketch/smart-energy.png",
+    photo: "/images/tracks/smart-energy.webp",
     position: "center center",
+    statement: "Infrastructure must learn before failure arrives.",
+    questions: ["How can physical infrastructure anticipate demand and degradation?", "How can intelligent control improve efficiency without compromising continuity?"],
   },
   {
     number: "04",
@@ -64,7 +76,10 @@ const researchTracks = [
     why: "Security cannot be separated from control, safety or continuity of operation. Resilient CPS must detect hostile or faulty conditions while preserving safe physical behavior under stress.",
     applications: ["Industrial control", "Connected infrastructure", "Safety-critical autonomy", "Secure sensing"],
     image: "/images/tracks-sketch/security-resilience.png",
+    photo: "/images/tracks/security-resilience.webp",
     position: "center center",
+    statement: "A digital breach can become a physical consequence.",
+    questions: ["How can a system preserve safe behavior while under attack?", "How should security, control and continuity respond as one system?"],
   },
   {
     number: "05",
@@ -77,11 +92,14 @@ const researchTracks = [
     why: "When intelligent systems influence the physical world, performance alone is not enough. Designers and operators also need evidence, transparency and meaningful ways to supervise consequential decisions.",
     applications: ["Assisted control", "Explainable autonomy", "Safety assurance", "Operator decision support"],
     image: "/images/tracks-sketch/trustworthy-ai.png",
+    photo: "/images/tracks/trustworthy-ai.webp",
     position: "center center",
+    statement: "Performance alone is not enough.",
+    questions: ["What evidence makes a learning-enabled physical system worthy of trust?", "How can human oversight remain meaningful inside autonomous infrastructure?"],
   },
 ];
 
-const aboutManifesto = "Cyber-physical systems begin when computation leaves the screen and enters the world, sensing movement, interpreting uncertainty, and turning intelligence into physical action. Yet meaningful progress demands more than speed: it requires machines that remain safe, resilient, explainable, and worthy of human trust. ISCICPS brings researchers together to shape that future.";
+const aboutManifesto = "Cyber-physical systems begin when computation leaves the screen and enters the world, sensing movement, interpreting uncertainty, and turning intelligence into physical action. Yet meaningful progress demands more than speed: it requires machines that remain safe, resilient, explainable, and worthy of human trust. ISCICPS brings researchers together to shape that future. These systems learn from the environments they inhabit, coordinating sensors, machines, energy and people as one responsive whole. From autonomous robots to intelligent infrastructure, each decision must remain timely, transparent and safe. The symposium is where researchers test how that balance becomes possible.";
 const aboutWords = aboutManifesto.split(" ");
 
 const participationPaths = [
@@ -123,66 +141,12 @@ const participationPaths = [
   },
 ] as const;
 
-function CustomCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    if (!cursor || window.matchMedia("(pointer: coarse)").matches) return;
-
-    let frame = 0;
-    let targetX = -100;
-    let targetY = -100;
-    let currentX = -100;
-    let currentY = -100;
-
-    const draw = () => {
-      currentX += (targetX - currentX) * 0.2;
-      currentY += (targetY - currentY) * 0.2;
-      cursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
-      frame = requestAnimationFrame(draw);
-    };
-    const move = (event: PointerEvent) => {
-      targetX = event.clientX;
-      targetY = event.clientY;
-      cursor.classList.add("is-visible");
-    };
-    const over = (event: PointerEvent) => {
-      const target = (event.target as HTMLElement).closest<HTMLElement>("[data-cursor], a, button");
-      if (!target) return;
-      const label = target.dataset.cursor ?? "";
-      cursor.dataset.label = label;
-      cursor.classList.toggle("has-label", Boolean(label));
-      cursor.classList.add("is-active");
-    };
-    const out = (event: PointerEvent) => {
-      const target = (event.target as HTMLElement).closest<HTMLElement>("[data-cursor], a, button");
-      if (!target) return;
-      cursor.dataset.label = "";
-      cursor.classList.remove("has-label", "is-active");
-    };
-
-    frame = requestAnimationFrame(draw);
-    window.addEventListener("pointermove", move, { passive: true });
-    document.addEventListener("pointerover", over);
-    document.addEventListener("pointerout", out);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("pointermove", move);
-      document.removeEventListener("pointerover", over);
-      document.removeEventListener("pointerout", out);
-    };
-  }, []);
-
-  return <div ref={cursorRef} className="custom-cursor" aria-hidden="true" />;
-}
-
 export function SymposiumExperience() {
-  const loaded = true;
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [activeTrack, setActiveTrack] = useState(0);
   const [selectedTrack, setSelectedTrack] = useState<number | null>(null);
+  const [trackOpenInstant, setTrackOpenInstant] = useState(false);
   const [activeParticipation, setActiveParticipation] = useState(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
@@ -192,20 +156,7 @@ export function SymposiumExperience() {
   const origamiRef = useRef<HTMLDivElement>(null);
   const researchScrollRef = useRef<{ start: number; end: number } | null>(null);
   const trackDialogRef = useRef<HTMLDivElement>(null);
-  const menuLayerRef = useRef<HTMLDivElement>(null);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const navigateFromMenu = useCallback((event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    event.preventDefault();
-    setMenuOpen(false);
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        window.history.pushState(null, "", `#${id}`);
-        document.getElementById(id)?.scrollIntoView();
-      });
-    });
-  }, []);
   const navSection = navItems.some(([id]) => id === activeSection) ? activeSection : "home";
-  const navSectionIndex = navItems.findIndex(([id]) => id === navSection);
   const navigateToTrack = useCallback((index: number) => {
     const nextIndex = Math.max(0, Math.min(researchTracks.length - 1, index));
     const trigger = researchScrollRef.current;
@@ -267,16 +218,33 @@ export function SymposiumExperience() {
     };
   }, [loaded]);
 
+  const trackCaseOpen = selectedTrack !== null;
+
   useEffect(() => {
-    if (selectedTrack === null) return;
+    if (!trackCaseOpen) return;
     const body = document.body;
     const dialog = trackDialogRef.current;
     const previousFocus = document.activeElement as HTMLElement | null;
     body.classList.add("track-dialog-is-open");
-    window.requestAnimationFrame(() => dialog?.querySelector<HTMLButtonElement>(".track-dialog-close")?.focus());
+    window.requestAnimationFrame(() => dialog?.querySelector<HTMLButtonElement>(".casefile-close")?.focus());
 
     const handleKeydown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedTrack(null);
+      if (event.key === "Escape") {
+        setSelectedTrack(null);
+        return;
+      }
+      if (event.key !== "Tab" || !dialog) return;
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], [tabindex]:not([tabindex='-1'])"));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", handleKeydown);
     return () => {
@@ -284,51 +252,7 @@ export function SymposiumExperience() {
       window.removeEventListener("keydown", handleKeydown);
       window.requestAnimationFrame(() => previousFocus?.focus());
     };
-  }, [selectedTrack]);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-
-    const body = document.body;
-    body.classList.add("menu-is-open");
-
-    return () => {
-      body.classList.remove("menu-is-open");
-    };
-  }, [menuOpen]);
-
-  useEffect(() => {
-    if (!menuOpen || !menuLayerRef.current) return;
-    const layer = menuLayerRef.current;
-    const focusable = [
-      menuButtonRef.current,
-      ...Array.from(layer.querySelectorAll<HTMLElement>("a[href]")),
-    ].filter((element): element is HTMLElement => Boolean(element));
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    const handleMenuKeydown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setMenuOpen(false);
-        window.requestAnimationFrame(() => menuButtonRef.current?.focus());
-        return;
-      }
-      if (event.key !== "Tab" || focusable.length === 0) return;
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last?.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first?.focus();
-      }
-    };
-
-    window.addEventListener("keydown", handleMenuKeydown);
-    return () => {
-      window.removeEventListener("keydown", handleMenuKeydown);
-    };
-  }, [menuOpen]);
+  }, [trackCaseOpen]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -345,43 +269,6 @@ export function SymposiumExperience() {
     sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
   }, [loaded]);
-
-  useEffect(() => {
-    const layer = menuLayerRef.current;
-    if (!loaded || !layer) return;
-    let cancelled = false;
-    let timeline: GSAPTimeline | undefined;
-    import("gsap").then(({ gsap }) => {
-      if (cancelled) return;
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const duration = reduce ? 0.01 : menuOpen ? 0.46 : 0.36;
-      timeline = gsap.timeline({ defaults: { ease: "power4.inOut" } });
-
-      if (menuOpen) {
-        gsap.set(layer, { pointerEvents: "auto" });
-        timeline
-          .to(".content-shell", { transform: reduce ? "none" : "translateY(1.5vh) scale(0.985)", opacity: 0.18, duration }, 0)
-          .fromTo(layer, { clipPath: "inset(0 0 0 100%)" }, { clipPath: "inset(0 0% 0 0)", duration }, 0)
-          .fromTo(".menu-link", { transform: reduce ? "none" : "translateY(62%)", opacity: 0 }, { transform: "translateY(0%)", opacity: 1, stagger: 0.04, duration: reduce ? 0.01 : 0.32, ease: "power4.out" }, 0.1)
-          .fromTo(".menu-register", { transform: reduce ? "none" : "translateX(18px)", opacity: 0 }, { transform: "translateX(0px)", opacity: 1, duration: reduce ? 0.01 : 0.24, ease: "power3.out" }, 0.24);
-      } else {
-        timeline
-          .to(".menu-link", { transform: reduce ? "none" : "translateY(24%)", opacity: 0, stagger: { each: 0.022, from: "end" }, duration: reduce ? 0.01 : 0.2, ease: "power2.in" }, 0)
-          .to(layer, {
-            clipPath: "inset(0 0 0 100%)",
-            duration,
-            onComplete: () => {
-              gsap.set(layer, { pointerEvents: "none" });
-            },
-          }, 0.12)
-          .to(".content-shell", { transform: "translateY(0) scale(1)", opacity: 1, duration }, 0.08);
-      }
-    });
-    return () => {
-      cancelled = true;
-      timeline?.kill();
-    };
-  }, [loaded, menuOpen]);
 
   useEffect(() => {
     if (!loaded || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -424,17 +311,21 @@ export function SymposiumExperience() {
           );
         });
 
-        gsap.fromTo(
-          ".matter-word",
-          { opacity: 0.14, transform: "translateX(-4%)" },
-          {
-            opacity: 1,
-            transform: "translateX(0%)",
-            stagger: 0.16,
-            ease: "none",
-            scrollTrigger: { trigger: ".matter-title", start: "top 77%", end: "bottom 35%", scrub: 0.45 },
-          },
-        );
+        const matterTitle = document.querySelector<HTMLElement>(".matter-title");
+        const matterWords = gsap.utils.toArray<HTMLElement>(".matter-word");
+        if (matterTitle && matterWords.length) {
+          gsap.fromTo(
+            matterWords,
+            { opacity: 0.14, transform: "translateX(-4%)" },
+            {
+              opacity: 1,
+              transform: "translateX(0%)",
+              stagger: 0.16,
+              ease: "none",
+              scrollTrigger: { trigger: matterTitle, start: "top 77%", end: "bottom 35%", scrub: 0.45 },
+            },
+          );
+        }
 
         manifestoWords = gsap.utils.toArray<HTMLElement>(".about-word");
         manifestoDoodles = gsap.utils.toArray<HTMLElement>(".about-doodle");
@@ -601,7 +492,7 @@ export function SymposiumExperience() {
           clearResearchJourney = () => {
             researchScrollRef.current = null;
             researchTrigger.kill();
-            context2d.clearRect(0, 0, researchCanvas.width, researchCanvas.height);
+            context2d?.clearRect(0, 0, researchCanvas.width, researchCanvas.height);
             trackScenes.forEach((scene) => {
               scene.inert = false;
               gsap.set(scene, { clearProps: "opacity,clipPath,scale,pointerEvents" });
@@ -699,14 +590,32 @@ export function SymposiumExperience() {
 
   return (
     <main ref={rootRef} className={`experience ${loaded ? "is-ready" : ""} section-${navSection}`}>
-      <CustomCursor />
-      <a className="global-host" href="https://www.srmist.edu.in/" target="_blank" rel="noreferrer" aria-label="Visit SRM Institute of Science and Technology">
-        <img className="global-host-crest" src="/images/srm-seal.png" alt="SRM Institute of Science and Technology crest" />
-        <span className="global-host-name" aria-hidden="true">
-          <strong>SRM</strong>
-          <small>Institute of Science &amp; Technology</small>
-        </span>
-      </a>
+      {!loaded && <LoadingScreen onComplete={() => setLoaded(true)} />}
+      <ResearchAnnotations
+        loaded={loaded}
+        activeSection={activeSection}
+        activeTrack={activeTrack}
+        selectedTrack={selectedTrack}
+      />
+      <header className="global-header">
+        <a className="global-host" href="https://www.srmist.edu.in/" target="_blank" rel="noreferrer" aria-label="Visit SRM Institute of Science and Technology">
+          <img className="global-host-crest" src="/images/srm-seal.png" alt="SRM Institute of Science and Technology crest" />
+          <span className="global-host-name" aria-hidden="true">
+            <strong>SRM</strong>
+            <small>Institute of Science &amp; Technology</small>
+          </span>
+        </a>
+
+        <nav className="hero-primary-nav" aria-label="Primary navigation">
+          {navItems.map(([id, label]) => (
+            <a key={id} href={`#${id}`} className={navSection === id ? "is-active" : ""} aria-current={navSection === id ? "page" : undefined}>
+              {label}
+            </a>
+          ))}
+        </nav>
+
+        <div className="conference-mark" aria-label="ISCICPS 2027">ISCICPS&apos;27</div>
+      </header>
       <a className="skip-link" href="#main-content">Skip to content</a>
 
       <nav className="side-nav" aria-label="Section navigation">
@@ -718,52 +627,6 @@ export function SymposiumExperience() {
       </nav>
       <div className="side-date" aria-hidden="true">21—22 APR 2027</div>
 
-      <aside className={`nav-control ${menuOpen ? "is-open" : ""}`} aria-label="Navigation control">
-        <button
-          ref={menuButtonRef}
-          className="menu-trigger"
-          type="button"
-          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-          aria-expanded={menuOpen}
-          aria-controls="navigation-layer"
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          <span className="menu-line" aria-hidden="true" />
-          <span className="menu-line" aria-hidden="true" />
-          <span className="menu-line" aria-hidden="true" />
-        </button>
-      </aside>
-
-      <nav className="hero-primary-nav" aria-label="Primary navigation">
-        {navItems.map(([id, label]) => (
-          <a key={id} href={`#${id}`} className={navSection === id ? "is-active" : ""} aria-current={navSection === id ? "page" : undefined}>
-            {label}
-          </a>
-        ))}
-      </nav>
-
-      <div ref={menuLayerRef} id="navigation-layer" className="nav-layer" role="dialog" aria-modal="true" aria-label="Site navigation" aria-hidden={!menuOpen}>
-        <div className="nav-layer-meta"><span>ISCICPS &apos;27</span><span>CURRENT / {String(navSectionIndex + 1).padStart(2, "0")}</span></div>
-        <nav aria-label="Primary navigation">
-          {navItems.map(([id, label], index) => (
-            <div className="menu-link-frame" key={id}>
-              <a
-                className={`menu-link ${navSection === id ? "is-active" : ""}`}
-                href={`#${id}`}
-                aria-current={navSection === id ? "location" : undefined}
-                tabIndex={menuOpen ? 0 : -1}
-                onClick={(event) => navigateFromMenu(event, id)}
-              >
-                <span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong>
-              </a>
-            </div>
-          ))}
-        </nav>
-        <a className="menu-register" href="#register" tabIndex={menuOpen ? 0 : -1} onClick={(event) => navigateFromMenu(event, "register")} data-cursor="ENTER ↗">
-          <span>CALL FOR PAPERS</span><strong>REGISTER</strong><span aria-hidden="true">↗</span>
-        </a>
-      </div>
-
       <div className="content-shell">
         <section id="home" className="hero" aria-labelledby="hero-heading">
           <div id="main-content" className="hero-stage">
@@ -772,16 +635,6 @@ export function SymposiumExperience() {
               <div className="hero-image hero-image-base">
                 <img src="/images/iscicps-hero-sculpture-transparent.png" alt="A cobalt mechanical hand holding a graphite sphere encircled by a circuit ribbon" fetchPriority="high" decoding="async" />
               </div>
-              <span className="hero-annotation hero-annotation-a" aria-hidden="true">μ4</span>
-              <span className="hero-annotation hero-annotation-b" aria-hidden="true">c5</span>
-              <span className="hero-annotation hero-annotation-c" aria-hidden="true">NF3</span>
-              <span className="hero-annotation hero-annotation-d" aria-hidden="true">c3</span>
-              <span className="hero-annotation hero-annotation-e" aria-hidden="true">d6</span>
-              <span className="hero-annotation hero-annotation-f" aria-hidden="true">Nc6</span>
-              <span className="hero-annotation hero-annotation-g" aria-hidden="true">Be5</span>
-              <span className="hero-annotation hero-annotation-h" aria-hidden="true">Ba4</span>
-              <span className="hero-annotation hero-annotation-i" aria-hidden="true">d3</span>
-              <span className="hero-annotation hero-annotation-j" aria-hidden="true">O-O</span>
               <div className="hero-researcher" role="img" aria-label="A hand-drawn researcher working on a laptop">
                 <img className="hero-researcher-base" src="/images/hero-researcher-transparent.png" alt="" decoding="async" />
               </div>
@@ -791,12 +644,6 @@ export function SymposiumExperience() {
               <span className="hero-line hero-line-two">CYBER-PHYSICAL</span>
               <span className="hero-line hero-line-three">SYSTEMS</span>
             </h1>
-            <span className="hero-compass" aria-hidden="true"><i>N</i><b /><i>S</i></span>
-            <span className="hero-scroll-mark" aria-hidden="true">
-              <span>c&nbsp;&nbsp;&nbsp;e&nbsp;&nbsp;&nbsp;s&nbsp;&nbsp;&nbsp;c&nbsp;&nbsp;&nbsp;z</span>
-              <i />
-              <b>z&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L</b>
-            </span>
           </div>
         </section>
 
@@ -810,15 +657,46 @@ export function SymposiumExperience() {
                     <img src="/images/hero-researcher-transparent.png" alt="" loading="lazy" />
                   </span>
                 ) : null}
+                {index === 17 ? (
+                  <span className="about-doodle about-doodle--illustration about-doodle--chip" data-about-index="17" aria-hidden="true">
+                    <img src="/images/tracks-sketch/edge-ai.png" alt="" loading="lazy" />
+                  </span>
+                ) : null}
                 {index === 29 ? (
                   <span className="about-doodle about-doodle--system" data-about-index="29" aria-hidden="true">
                     <i /><b /><em>CPS</em>
+                  </span>
+                ) : null}
+                {index === 35 ? (
+                  <span className="about-doodle about-doodle--illustration about-doodle--shield" data-about-index="35" aria-hidden="true">
+                    <img src="/images/tracks-sketch/security-resilience.png" alt="" loading="lazy" />
+                  </span>
+                ) : null}
+                {index === 44 ? (
+                  <span className="about-doodle about-doodle--illustration about-doodle--robot" data-about-index="44" aria-hidden="true">
+                    <img src="/images/tracks-sketch/autonomous-systems.png" alt="" loading="lazy" />
+                  </span>
+                ) : null}
+                {index === 55 ? (
+                  <span className="about-doodle about-doodle--illustration about-doodle--energy" data-about-index="55" aria-hidden="true">
+                    <img src="/images/tracks-sketch/smart-energy.png" alt="" loading="lazy" />
+                  </span>
+                ) : null}
+                {index === 69 ? (
+                  <span className="about-doodle about-doodle--illustration about-doodle--robot about-doodle--robot-wide" data-about-index="69" aria-hidden="true">
+                    <img src="/images/tracks-sketch/autonomous-systems.png" alt="" loading="lazy" />
+                  </span>
+                ) : null}
+                {index === 79 ? (
+                  <span className="about-doodle about-doodle--illustration about-doodle--trust" data-about-index="79" aria-hidden="true">
+                    <img src="/images/tracks-sketch/trustworthy-ai.png" alt="" loading="lazy" />
                   </span>
                 ) : null}
                 <span className="about-word" aria-hidden="true">{word}</span>{" "}
               </Fragment>
             ))}
           </p>
+
           <span className="about-annotation about-annotation--a" aria-hidden="true">S↔A</span>
           <span className="about-annotation about-annotation--b" aria-hidden="true">x̂(t)</span>
           <span className="about-annotation about-annotation--c" aria-hidden="true">∂C/∂t</span>
@@ -836,7 +714,6 @@ export function SymposiumExperience() {
             <p className="research-whisper" aria-hidden="true">Five domains.<br />One intelligent future.</p>
             <span className="research-formula research-formula--a" aria-hidden="true">x̂ → u</span>
             <span className="research-formula research-formula--b" aria-hidden="true">∑ / CPS</span>
-            <span className="research-compass" aria-hidden="true"><i>N</i><b /><i>S</i></span>
             <canvas ref={researchCanvasRef} className="research-route" aria-hidden="true" />
             <div ref={origamiRef} className="origami-flight" aria-hidden="true">
               <span className="origami-sheet" />
@@ -862,7 +739,10 @@ export function SymposiumExperience() {
                       className="track-explore"
                       type="button"
                       tabIndex={prefersReducedMotion || activeTrack === index ? 0 : -1}
-                      onClick={() => setSelectedTrack(index)}
+                      onClick={(event) => {
+                        setTrackOpenInstant(event.detail === 0);
+                        setSelectedTrack(index);
+                      }}
                       data-cursor="EXPLORE ↗"
                     >
                       EXPLORE TRACK <span aria-hidden="true">↗</span>
@@ -949,11 +829,10 @@ export function SymposiumExperience() {
           </div>
         </section>
 
-        <section id="register" className="register" aria-labelledby="register-title">
+        <section id="register" className="register" aria-label="Participation options">
           <div className="participate-meta"><span>ISCICPS 2027 · PARTICIPATION DESK</span></div>
 
           <header className="participate-heading">
-            <h2 id="register-title">PARTICIPATE</h2>
             <p>Your work<br />belongs in<br />the <em>system.</em></p>
             <span aria-hidden="true">Bring a question.<br />Leave with<br />a network.</span>
           </header>
@@ -1025,31 +904,45 @@ export function SymposiumExperience() {
 
         <footer className="site-footer" aria-label="Symposium research desk closing scene">
           <ResearchDeskCanvas />
+          <div className="footer-information">
+            <div className="footer-identity">
+              <span>INTERNATIONAL SYMPOSIUM / 2027</span>
+              <a href="#home">ISCICPS <sup>&apos;27</sup></a>
+              <p>Intelligent Cyber-Physical Systems</p>
+            </div>
+            <div className="footer-fact">
+              <span>DATES</span>
+              <strong>21–22 APRIL 2027</strong>
+              <small>TWO DAYS · ONE SYSTEM</small>
+            </div>
+            <div className="footer-fact">
+              <span>VENUE</span>
+              <strong>SRMIST</strong>
+              <small>KATTANKULATHUR · INDIA</small>
+            </div>
+            <address className="footer-fact footer-contact">
+              <span>CONTACT</span>
+              <a href="mailto:ieeescicps@gmail.com">ieeescicps@gmail.com</a>
+              <a href="https://www.srmist.edu.in/" target="_blank" rel="noreferrer">VISIT SRMIST ↗</a>
+            </address>
+          </div>
+          <div className="footer-deskline">
+            <span>© 2026 ISCICPS</span>
+            <a href="#home">RETURN TO THE TOP ↑</a>
+          </div>
         </footer>
       </div>
 
       {selectedTrack !== null && (
-        <div className="track-dialog-backdrop" role="presentation" onMouseDown={(event) => {
-          if (event.target === event.currentTarget) setSelectedTrack(null);
-        }}>
-          <div ref={trackDialogRef} className="track-dialog" role="dialog" aria-modal="true" aria-labelledby="track-dialog-title">
-            <button className="track-dialog-close" type="button" onClick={() => setSelectedTrack(null)} aria-label="Close track details">CLOSE ×</button>
-            <div className="track-dialog-visual">
-              <img src={researchTracks[selectedTrack].image} alt="" style={{ objectPosition: researchTracks[selectedTrack].position }} />
-              <span>/{researchTracks[selectedTrack].number}</span>
-            </div>
-            <div className="track-dialog-copy">
-              <span>RESEARCH TRACK {researchTracks[selectedTrack].number}</span>
-              <h2 id="track-dialog-title">{researchTracks[selectedTrack].title}</h2>
-              <p>{researchTracks[selectedTrack].introduction}</p>
-              <div className="track-dialog-grid">
-                <div><h3>KEY RESEARCH AREAS</h3><ul>{researchTracks[selectedTrack].areas.map((area) => <li key={area}>{area}</li>)}</ul></div>
-                <div><h3>WHY IT MATTERS</h3><p>{researchTracks[selectedTrack].why}</p></div>
-                <div><h3>APPLICATIONS</h3><ul>{researchTracks[selectedTrack].applications.map((application) => <li key={application}>{application}</li>)}</ul></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TrackCaseFile
+          track={researchTracks[selectedTrack]}
+          index={selectedTrack}
+          total={researchTracks.length}
+          dialogRef={trackDialogRef}
+          instant={trackOpenInstant}
+          onClose={() => setSelectedTrack(null)}
+          onNavigate={setSelectedTrack}
+        />
       )}
     </main>
   );
