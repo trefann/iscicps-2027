@@ -311,17 +311,21 @@ export function SymposiumExperience() {
           );
         });
 
-        gsap.fromTo(
-          ".matter-word",
-          { opacity: 0.14, transform: "translateX(-4%)" },
-          {
-            opacity: 1,
-            transform: "translateX(0%)",
-            stagger: 0.16,
-            ease: "none",
-            scrollTrigger: { trigger: ".matter-title", start: "top 77%", end: "bottom 35%", scrub: 0.45 },
-          },
-        );
+        const matterTitle = document.querySelector<HTMLElement>(".matter-title");
+        const matterWords = gsap.utils.toArray<HTMLElement>(".matter-word");
+        if (matterTitle && matterWords.length) {
+          gsap.fromTo(
+            matterWords,
+            { opacity: 0.14, transform: "translateX(-4%)" },
+            {
+              opacity: 1,
+              transform: "translateX(0%)",
+              stagger: 0.16,
+              ease: "none",
+              scrollTrigger: { trigger: matterTitle, start: "top 77%", end: "bottom 35%", scrub: 0.45 },
+            },
+          );
+        }
 
         manifestoWords = gsap.utils.toArray<HTMLElement>(".about-word");
         manifestoDoodles = gsap.utils.toArray<HTMLElement>(".about-doodle");
