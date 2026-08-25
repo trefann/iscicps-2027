@@ -3,7 +3,7 @@ import { timelineItems, type TimelineItem } from "./timeline-data";
 function TimelineHeader() {
   return (
     <header className="timeline-header">
-      <h2 id="timeline-title" className="timeline-heading-accessible">Symposium timeline</h2>
+      <h2 id="timeline-title">Timeline</h2>
       <p className="timeline-deck">Key milestones leading to<br />the International Symposium.</p>
     </header>
   );
