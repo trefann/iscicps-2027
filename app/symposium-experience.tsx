@@ -6,12 +6,14 @@ import { TimelineSection } from "./timeline-section";
 import { TrackCaseFile, type ResearchTrackCase } from "./track-case-file";
 import { LoadingScreen } from "./loading-screen";
 import { ResearchAnnotations } from "./research-annotations";
+import { AdvisoryBoard } from "./advisory-board";
 
 const navItems = [
   ["home", "Home"],
   ["about", "About"],
   ["research", "Tracks"],
   ["timeline", "Timeline"],
+  ["board", "Board"],
   ["venue", "Venue"],
   ["register", "Participate"],
 ] as const;
@@ -644,6 +646,7 @@ export function SymposiumExperience() {
               <span className="hero-line hero-line-two">CYBER-PHYSICAL</span>
               <span className="hero-line hero-line-three">SYSTEMS</span>
             </h1>
+            <p className="hero-date-range" aria-label="21 to 22 April 2027">21–22 APRIL 2027</p>
           </div>
         </section>
 
@@ -764,6 +767,8 @@ export function SymposiumExperience() {
         </section>
 
         <TimelineSection />
+
+        <AdvisoryBoard />
 
         <section id="venue" className="venue" aria-labelledby="venue-title">
           <div className="venue-meta"><span>SRMIST · KATTANKULATHUR</span></div>
