@@ -634,9 +634,6 @@ export function SymposiumExperience() {
           <div id="main-content" className="hero-stage">
             <div className="hero-kicker">International Symposium On</div>
             <div className="hero-visual" data-cursor="EXPLORE ↗">
-              <div className="hero-image hero-image-base">
-                <img src="/images/iscicps-hero-sculpture-transparent.png" alt="A cobalt mechanical hand holding a graphite sphere encircled by a circuit ribbon" fetchPriority="high" decoding="async" />
-              </div>
               <div className="hero-researcher" role="img" aria-label="A hand-drawn researcher working on a laptop">
                 <img className="hero-researcher-base" src="/images/hero-researcher-transparent.png" alt="" decoding="async" />
               </div>
