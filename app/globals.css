@@ -867,6 +867,45 @@ img { display: block; }
   line-height: 1;
   white-space: nowrap;
 }
+.showcase-placard {
+  position: fixed;
+  z-index: 915;
+  bottom: 1.35rem;
+  left: 1.35rem;
+  display: grid;
+  min-width: 10.75rem;
+  border: 1px solid rgba(21, 25, 34, 0.22);
+  background: rgba(242, 244, 241, 0.92);
+  box-shadow: 0 0.6rem 1.8rem rgba(21, 25, 34, 0.1);
+  color: var(--ink);
+  font-family: var(--font-mono), monospace;
+  backdrop-filter: blur(10px);
+}
+.showcase-placard > span {
+  padding: 0.45rem 0.65rem;
+  border-bottom: 1px solid rgba(21, 25, 34, 0.16);
+  color: rgba(21, 25, 34, 0.58);
+  font-size: 0.46rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.showcase-placard a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem;
+  color: var(--hero-blue);
+  font-size: 0.58rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+.showcase-placard a b { font-size: 0.8rem; font-weight: 500; transition: transform 160ms var(--ease-out); }
 
 /* Shared */
 .section-note { display: grid; grid-template-columns: 3.6rem auto; width: fit-content; font-family: var(--font-mono), monospace; font-size: 0.58rem; font-weight: 650; letter-spacing: 0.13em; text-transform: uppercase; }
@@ -1743,6 +1782,8 @@ html.lenis, html.lenis body { height: auto; }
 
 @media (hover: hover) and (pointer: fine) {
   .global-host:hover { opacity: 0.72; }
+  .showcase-placard a:hover { background: var(--hero-blue); color: var(--paper); }
+  .showcase-placard a:hover b { transform: translate(0.12rem, -0.12rem); }
   .casefile-close:hover, .casefile-footer nav button:hover { color: var(--cyan); }
   .casefile-artifact:hover img { filter: saturate(0.92) contrast(1.02); transform: scale(1.025); }
   .casefile-artifact:hover .casefile-image-overlay { opacity: 1; transform: translateY(0); }
@@ -1856,6 +1897,17 @@ html.lenis, html.lenis body { height: auto; }
     align-items: center;
   }
   .conference-mark { font-size: 0.5rem; letter-spacing: 0.045em; }
+  .showcase-placard {
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    left: 0.75rem;
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .showcase-placard > span { border-right: 1px solid rgba(21, 25, 34, 0.16); border-bottom: 0; }
+  .showcase-placard a { flex: 1; padding: 0.58rem 0.65rem; }
   .global-host { grid-column: 1; grid-row: 1; }
   .conference-mark { grid-column: 3; grid-row: 1; }
   .hero-primary-nav {
