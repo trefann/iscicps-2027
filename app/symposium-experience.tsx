@@ -620,13 +620,6 @@ export function SymposiumExperience() {
       </header>
       <a className="skip-link" href="#main-content">Skip to content</a>
 
-      <aside className="showcase-placard" aria-label="Original concept showcase">
-        <span>Original concept</span>
-        <a href="https://www.iscicps.in/" target="_blank" rel="noreferrer">
-          View current site <b aria-hidden="true">↗</b>
-        </a>
-      </aside>
-
       <nav className="side-nav" aria-label="Section navigation">
         {navItems.map(([id, label]) => (
           <a className={navSection === id ? "is-active" : ""} href={`#${id}`} aria-current={navSection === id ? "location" : undefined} key={id}>
